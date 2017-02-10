@@ -2,7 +2,7 @@
 
 ## A clean text analyser.
 
-[![Code Health](https://landscape.io/github/the-new-sky/Kadot/master/landscape.svg?style=flat)](https://landscape.io/github/the-new-sky/Kadot/master) [![Code Climate](https://codeclimate.com/github/the-new-sky/Kadot/badges/gpa.svg)](https://codeclimate.com/github/the-new-sky/Kadot)
+[![Code Health](https://landscape.io/github/the-new-sky/Kadot/master/landscape.svg?style=flat)](https://landscape.io/github/the-new-sky/Kadot/master)
 
 
 Kadot just let you analyses a text easily.
