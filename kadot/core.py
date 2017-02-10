@@ -60,18 +60,17 @@ class VectorDictionary(object):
         :param dimension: length of all dictionary values
         """
 
+        self.dimension = dimension
+
         if vectors is not None:
             for coordinates in vectors.values():  # Check if pre-filled dictionary respect `dimension` argument.
                 if not len(coordinates) == dimension:
                     raise ValueError('`vectors` argument must contain values with a length that'
                                      ' should be equal to {0} not {1}'.format(self.dimension, len(coordinates)))
 
-            vectors = OrderedDict(vectors)
+            self.vectors = OrderedDict(vectors)
         else:
-            vectors = OrderedDict()
-
-        self.vectors = vectors
-        self.dimension = dimension
+            self.vectors = OrderedDict()
 
     def __str__(self):
         return self.vectors.__str__()
