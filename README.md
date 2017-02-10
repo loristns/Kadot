@@ -1,11 +1,11 @@
 ![Kadot](https://github.com/the-new-sky/Kadot/raw/master/logo.png)
 
-## A clean text analyser.
+## A clean natural language processing toolkit.
 
 [![Code Health](https://landscape.io/github/the-new-sky/Kadot/master/landscape.svg?style=flat)](https://landscape.io/github/the-new-sky/Kadot/master)
 
 
-Kadot just let you analyses a text easily.
+Kadot just let you process a text easily.
 
 ```python
 >>> hello_world = Text("Hello, I'm Kadot : the clean text analyser.")
