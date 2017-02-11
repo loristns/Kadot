@@ -26,3 +26,9 @@ That's all ! But **in a very near future** :
 - A modulable [Named Entity Recognizer](https://en.wikipedia.org/wiki/Named-entity_recognition)
 
 The philosophy behind Kadot is clear, **never hardcode the language rules**: use unsupervised techniques for **support most languages**.
+
+## Install
+
+```
+$ pip3 install Kadot
+```
