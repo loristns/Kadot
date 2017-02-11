@@ -62,16 +62,21 @@ class SafeCharTokenizer(CharTokenizer):
     """
 
     def tokenize(self, text):
+        split_regular_char = False
         tokenized_text = []
         part_of_word = ""
 
         for character in text:
-            part_of_word += character
-
-            if character in self.delimiters:
-                if part_of_word != "":
+            if split_regular_char:
+                if part_of_word != "" and character not in self.delimiters:
                     tokenized_text.append(part_of_word)
                     part_of_word = ""
+                    split_regular_char = False
+
+            elif character in self.delimiters:
+                split_regular_char = True
+
+            part_of_word += character
 
         if part_of_word != "":
             tokenized_text.append(part_of_word)
