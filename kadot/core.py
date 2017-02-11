@@ -20,6 +20,10 @@ class VectorCoordinate(object):
     def __len__(self):
         return len(self.coordinates)
 
+    def __eq__(self, other):
+        other = VectorCoordinate(other)
+        return self.coordinates == other.coordinates
+
     def __add__(self, other):
         other = VectorCoordinate(other)
         return VectorCoordinate(map(operator.add, self.coordinates, other.coordinates))
@@ -63,8 +67,11 @@ class VectorDictionary(object):
         self.dimension = dimension
 
         if vectors is not None:
-            for coordinates in vectors.values():  # Check if pre-filled dictionary respect `dimension` argument.
-                if not len(coordinates) == dimension:
+            for key, coordinates in vectors.items():
+                if not isinstance(coordinates, VectorCoordinate):  # Convert all coordinate to VectorCoordinate objects.
+                    vectors[key] = VectorCoordinate(coordinates)
+
+                if not len(coordinates) == dimension:  # Check if pre-filled dictionary respect `dimension` argument.
                     raise ValueError('`vectors` argument must contain values with a length that'
                                      ' should be equal to {0} not {1}'.format(self.dimension, len(coordinates)))
 

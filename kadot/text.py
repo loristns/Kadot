@@ -3,6 +3,16 @@ from .vectorizers import WordVectorizer
 
 
 class Text(object):
+    """
+    A TextBlob `Blob`-like class.
+
+    Examples
+    --------
+    >>> Text("This is a-text !", tokenizer=CharTokenizer()).tokens
+    ['This', 'is', 'a', 'text']
+    >>> Text('This is another text !') + " " + "So fun"
+    'This is another text ! So fun'
+    """
 
     def __init__(self, text, tokenizer=CharTokenizer(), vectorizer=WordVectorizer()):
 
