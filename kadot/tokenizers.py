@@ -9,6 +9,11 @@ class BaseTokenizer(object):
 class SpaceTokenizer(BaseTokenizer):
     """
     A simple tokenizer where word are separated by spaces.
+
+    Examples
+    --------
+    >>> SpaceTokenizer().tokenize("This is a-text !")
+    ['This', 'is', 'a-text', '!']
     """
 
     def tokenize(self, text):
@@ -18,6 +23,11 @@ class SpaceTokenizer(BaseTokenizer):
 class CharTokenizer(BaseTokenizer):
     """
     A tokenizer where word are separated by special characters.
+
+    Examples
+    --------
+    >>> CharTokenizer().tokenize("This is a-text !")
+    ['This', 'is', 'a', 'text']
     """
 
     def __init__(self, delimiters=WORD_TOKENS):
