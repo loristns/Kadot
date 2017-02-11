@@ -49,3 +49,31 @@ class CharTokenizer(BaseTokenizer):
             tokenized_text.append(part_of_word)
 
         return tokenized_text
+
+
+class SafeCharTokenizer(CharTokenizer):
+    """
+    Same as CharTokenizer, but save save punctuation. Used for generation tasks.
+
+    Examples
+    --------
+    >>> SafeCharTokenizer().tokenize("This is a-text !")
+    ['This ', 'is ', 'a-', 'text !']
+    """
+
+    def tokenize(self, text):
+        tokenized_text = []
+        part_of_word = ""
+
+        for character in text:
+            part_of_word += character
+
+            if character in self.delimiters:
+                if part_of_word != "":
+                    tokenized_text.append(part_of_word)
+                    part_of_word = ""
+
+        if part_of_word != "":
+            tokenized_text.append(part_of_word)
+
+        return tokenized_text
