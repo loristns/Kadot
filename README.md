@@ -17,12 +17,12 @@ Kadot just let you process a text easily.
 ## Include
 
 - A Tokenizer
-- A Word-Level (like word embedding) and a Text-Level vectorizer. 
+- A Word-Level (like word embedding) and a Text-Level vectorizer.
+- A Markov Text Generator 
 
 That's all ! But **in a very near future** :
 
 - A powerful Text Classifier
-- A Markov Text Generator 
 - A modulable [Named Entity Recognizer](https://en.wikipedia.org/wiki/Named-entity_recognition)
 
 The philosophy behind Kadot is clear, **never hardcode the language rules**: use unsupervised techniques for **support most languages**.
