@@ -120,6 +120,9 @@ class VectorDictionary(object):
 
         return Counter(similarity_dict).most_common(best)
 
+    def apply_vector(self, from1, from2, to, best=5):
+        return self.most_similar(from2 - from1 + to, best)
+
     def reduce(self, to_dimension=2):
         """
         Perform a SVD reduction on the dict.
