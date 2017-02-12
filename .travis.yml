@@ -7,6 +7,6 @@ before_install:
     - pip install coveralls
     - pip install -r requirements.txt
 script:
-    - py.test --doctest-modules --cov
+    - py.test --doctest-modules --cov kadot
 after_success:
     - coveralls
