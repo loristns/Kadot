@@ -9,9 +9,9 @@ Kadot just let you process a text easily.
 
 ```python
 >>> hello_world = Text("Hello, I'm Kadot : the clean text analyser.")
->>> hello_world.tokens
+>>> hello_world.ngrams()
 
-['Hello', 'I', 'm', 'Kadot', 'the', 'clean', 'text', 'analyser']
+[('Hello', 'I'), ('I', 'm'), ('m', 'Kadot'), ('Kadot', 'the'), ('the', 'clean'), ('clean', 'text'), ('text', 'analyser')]
 ```
 
 ## Include

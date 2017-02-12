@@ -8,7 +8,7 @@ class Text(object):
 
     Examples
     --------
-    >>> Text("This is a-text !", tokenizer=CharTokenizer()).tokens
+    >>> Text('This is a-text !', tokenizer=CharTokenizer()).tokens
     ['This', 'is', 'a', 'text']
     >>> Text('This is another text !') + " " + "So fun"
     'This is another text ! So fun'
@@ -21,9 +21,21 @@ class Text(object):
         self.vectorizer = vectorizer
 
     def __str__(self):
+        """
+        Examples
+        --------
+        >>> str(Text('This is a-text !'))
+        'This is a-text !'
+        """
         return self.raw_text
 
     def __repr__(self):
+        """
+        Examples
+        --------
+        >>> Text('This is a-text !')
+        Text('This is a-text !')
+        """
         return 'Text({})'.format(repr(self.raw_text))
 
     def __add__(self, other):
@@ -36,3 +48,15 @@ class Text(object):
             return vectors.reduce(reduce_rate)
         else:
             return vectors
+
+    def ngrams(self, n=2):
+        """
+        Return n-grams of the text. Hazardously found in the locallyoptimal.com blog.
+        :param n: length of grams
+
+        Examples
+        --------
+        >>> Text('This is a-text !').ngrams()
+        [('This', 'is'), ('is', 'a'), ('a', 'text')]
+        """
+        return list(zip(*[self.tokens[i:] for i in range(n)]))

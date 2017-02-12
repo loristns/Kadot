@@ -15,18 +15,22 @@ class BaseVectorizer(object):
 
         self.tokenizer = tokenizer
 
-        self.documents = []  # List of raw documents
-        self.documents_corpus = []  # Tokenized lowercased concatenation of all documents
+        self.raw_documents = []  # List of raw documents
+        self.processed_documents = []  # List of tokenized, lowercased documents
         self.unique_words = []  # List of uniques words in `self.document_corpus`
 
     def fit(self, documents):
         if isinstance(documents, list):
-            self.documents += documents
-        else:
-            self.documents.append(documents)
+            self.raw_documents += documents
+            for doc in documents:
+                self.processed_documents.append(self.tokenizer.tokenize(doc.lower()))
 
-        self.documents_corpus = self.tokenizer.tokenize(" ".join(self.documents).lower())
-        self.unique_words = list(set(self.documents_corpus))
+        else:
+            self.raw_documents.append(documents)
+            self.processed_documents.append(self.tokenizer.tokenize(documents.lower()))
+
+        documents_corpus = self.tokenizer.tokenize(" ".join(self.raw_documents).lower())
+        self.unique_words = list(set(documents_corpus))
 
     def transform(self, window):
         pass
@@ -45,21 +49,23 @@ class WordVectorizer(BaseVectorizer):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
         for n_word in self.unique_words:
-            n_word_indexes = [i for i, x in enumerate(self.documents_corpus) if x == n_word]  # list of index of `n_word`
             n_word_vectors = []
 
-            if n_word_indexes:
-                # Build a vector for each index...
-                for index in n_word_indexes:
-                    text_selection = self.documents_corpus[index - window:index] +\
-                                     self.documents_corpus[index + 1:index + window + 1]
-                    n_word_vectors.append([text_selection.count(word) for word in self.unique_words])
+            for document in self.processed_documents:
+                doc_n_word_indexes = [i for i, x in enumerate(document) if x == n_word]  # list of index of `n_word` in document
 
-                # ...And mean them to build the final vector :
-                vector_dict[n_word] = VectorCoordinate(map(mean, zip(*n_word_vectors)))
+                if doc_n_word_indexes:
+                    # Build a vector for each index...
+                    for index in doc_n_word_indexes:
+                        text_selection = document[index - window:index] +\
+                                         document[index + 1:index + window + 1]
+                        n_word_vectors.append([text_selection.count(word) for word in self.unique_words])
 
-            else:
-                vector_dict[n_word] = [0 for i in range(len(self.unique_words))]
+                else:
+                    n_word_vectors.append([0 for i in self.unique_words])
+
+            # ...And mean them to build the final vector :
+            vector_dict[n_word] = VectorCoordinate(map(mean, zip(*n_word_vectors)))
 
         return vector_dict
 
@@ -72,7 +78,7 @@ class DocVectorizer(BaseVectorizer):
     def transform(self, window):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
-        for document in self.documents:
+        for document in self.raw_documents:
             vectorizer = WordVectorizer(tokenizer=self.tokenizer)
             vectorizer.fit(document)
             vectorizer.unique_words = self.unique_words
