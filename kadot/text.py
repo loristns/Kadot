@@ -29,10 +29,10 @@ class Text(object):
     def __add__(self, other):
         return self.raw_text + other
 
-    def vectorize(self, window=50, reduce=None):
+    def vectorize(self, window=50, reduce_rate=None):
         vectors = self.vectorizer.fit_transform(self.raw_text, window)
 
-        if isinstance(reduce, int):
-            return vectors.reduce(reduce)
+        if isinstance(reduce_rate, int):
+            return vectors.reduce(reduce_rate)
         else:
             return vectors

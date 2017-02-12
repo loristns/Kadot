@@ -27,7 +27,7 @@ class BaseGenerator(object):
         else:
             self.documents.append([self.start_token] + self.tokenizer.tokenize(documents) + [self.end_token])
 
-    def predict(self):
+    def predict(self, max_word=30):
         pass
 
 
