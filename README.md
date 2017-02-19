@@ -32,3 +32,6 @@ The philosophy behind Kadot is clear, **never hardcode the language rules**: use
 ```
 $ pip3 install kadot
 ```
+
+## Documentation
+The documentation is coming. Check [examples](https://github.com/the-new-sky/Kadot/blob/master/examples).
