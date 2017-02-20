@@ -1,6 +1,5 @@
 from .tokenizers import CharTokenizer
 from .core import VectorDictionary, VectorCoordinate
-from statistics import mean
 
 
 class BaseVectorizer(object):
@@ -39,6 +38,9 @@ class BaseVectorizer(object):
         self.fit(documents)
         return self.transform(window)
 
+    def predict(self, documents):
+        pass
+
 
 class WordVectorizer(BaseVectorizer):
     """
@@ -59,13 +61,14 @@ class WordVectorizer(BaseVectorizer):
                     for index in doc_n_word_indexes:
                         text_selection = document[index - window:index] +\
                                          document[index + 1:index + window + 1]
+
                         n_word_vectors.append([text_selection.count(word) for word in self.unique_words])
 
                 else:
                     n_word_vectors.append([0 for i in self.unique_words])
 
             # ...And mean them to build the final vector :
-            vector_dict[n_word] = VectorCoordinate(map(mean, zip(*n_word_vectors)))
+            vector_dict[n_word] = VectorCoordinate(map(sum, zip(*n_word_vectors)))
 
         return vector_dict
 
@@ -84,6 +87,6 @@ class DocVectorizer(BaseVectorizer):
             vectorizer.unique_words = self.unique_words
 
             document_vocabulary_vectors = vectorizer.transform(window)
-            vector_dict[document] = VectorCoordinate(map(mean, zip(*document_vocabulary_vectors.values())))
+            vector_dict[document] = VectorCoordinate(map(sum, zip(*document_vocabulary_vectors.values())))
 
         return vector_dict
