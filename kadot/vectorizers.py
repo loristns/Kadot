@@ -7,12 +7,13 @@ class BaseVectorizer(object):
     A base class for building vectorizers.
     """
 
-    def __init__(self, tokenizer=CharTokenizer()):
+    def __init__(self, window=5, tokenizer=CharTokenizer()):
         """
         :param tokenizer: A BaseTokenizer subclass object to tokenize the text
         """
 
         self.tokenizer = tokenizer
+        self.window = window
 
         self.raw_documents = []  # List of raw documents
         self.processed_documents = []  # List of tokenized, lowercased documents
@@ -31,12 +32,12 @@ class BaseVectorizer(object):
         documents_corpus = self.tokenizer.tokenize(" ".join(self.raw_documents).lower())
         self.unique_words = list(set(documents_corpus))
 
-    def transform(self, window):
+    def transform(self):
         pass
 
-    def fit_transform(self, documents, window):
+    def fit_transform(self, documents):
         self.fit(documents)
-        return self.transform(window)
+        return self.transform()
 
     def predict(self, documents):
         pass
@@ -47,7 +48,7 @@ class WordVectorizer(BaseVectorizer):
     A simple distributional vectorizer algorithm.
     """
 
-    def transform(self, window):
+    def transform(self):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
         for n_word in self.unique_words:
@@ -59,8 +60,8 @@ class WordVectorizer(BaseVectorizer):
                 if doc_n_word_indexes:
                     # Build a vector for each index...
                     for index in doc_n_word_indexes:
-                        text_selection = document[index - window:index] +\
-                                         document[index + 1:index + window + 1]
+                        text_selection = document[index - self.window:index] +\
+                                         document[index + 1:index + self.window + 1]
 
                         n_word_vectors.append([text_selection.count(word) for word in self.unique_words])
 
@@ -78,15 +79,15 @@ class DocVectorizer(BaseVectorizer):
     Use WordVectorizer to vectorize a whole text.
     """
 
-    def transform(self, window):
+    def transform(self):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
         for document in self.raw_documents:
-            vectorizer = WordVectorizer(tokenizer=self.tokenizer)
+            vectorizer = WordVectorizer(window=self.window, tokenizer=self.tokenizer)
             vectorizer.fit(document)
             vectorizer.unique_words = self.unique_words
 
-            document_vocabulary_vectors = vectorizer.transform(window)
+            document_vocabulary_vectors = vectorizer.transform()
             vector_dict[document] = VectorCoordinate(map(sum, zip(*document_vocabulary_vectors.values())))
 
         return vector_dict

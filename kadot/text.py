@@ -42,7 +42,8 @@ class Text(object):
         return self.raw_text + other
 
     def vectorize(self, window=50, reduce_rate=None):
-        vectors = self.vectorizer.fit_transform(self.raw_text, window)
+        self.vectorizer.window = window
+        vectors = self.vectorizer.fit_transform(self.raw_text)
 
         if isinstance(reduce_rate, int):
             return vectors.reduce(reduce_rate)
@@ -56,7 +57,7 @@ class Text(object):
 
         Examples
         --------
-        >>> Text('This is a-text !').ngrams()
+        >>> Text('This is a-text !').ngrams(n=2)
         [('This', 'is'), ('is', 'a'), ('a', 'text')]
         """
         return list(zip(*[self.tokens[i:] for i in range(n)]))
