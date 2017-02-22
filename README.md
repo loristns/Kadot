@@ -5,20 +5,20 @@
 [![Build Status](https://travis-ci.org/the-new-sky/Kadot.svg?branch=master)](https://travis-ci.org/the-new-sky/Kadot)  [![Code Health](https://landscape.io/github/the-new-sky/Kadot/master/landscape.svg?style=flat)](https://landscape.io/github/the-new-sky/Kadot/master) [![PyPI version](https://badge.fury.io/py/Kadot.svg)](https://badge.fury.io/py/Kadot) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/the-new-sky/Kadot/master/LICENSE.md) 
 
 
-**Kadot** just let you process a text easily.
+**Kadot** just lets you process a text easily.
 
 ```python
->>> hello_world = Text("Kadot just let you process a text easily.")
+>>> hello_world = Text("Kadot just lets you process a text easily.")
 >>> hello_world.ngrams(n=2)
 
-[('Kadot', 'just'), ('just', 'let'), ('let', 'you'), ('you', 'process'), ('process', 'a'), ('a', 'text'), ('text', 'easily')]
+[('Kadot', 'just'), ('just', 'lets'), ('lets', 'you'), ('you', 'process'), ('process', 'a'), ('a', 'text'), ('text', 'easily')]
 ```
 
 ## 🔋 What's included ?
 
-Kadot include **tokenizers**, text **generators**, word-level and document-level **vectorizers** (and I currently work on *classifiers*).
+Kadot includes **tokenizers**, text **generators**, word-level and document-level **vectorizers** (and I currently work on *classifiers*).
 
-The philosophy of Kadot is *"never hardcode the language rules"* : use **unsupervised solutions** to support most languages. So it will never include Treebank based algorithms (like a POS Tagger) : use [TextBlob](https://textblob.readthedocs.io/en/dev/) to do that.
+The philosophy of Kadot is *"never hardcode the language rules"* : use **unsupervised solutions** to support most languages. So it will never includes Treebank based algorithms (like a POS Tagger) : use [TextBlob](https://textblob.readthedocs.io/en/dev/) to do that.
 
 ## 🤔 How to use it ?
 You can play with the TextBlob-like syntax :
@@ -35,7 +35,7 @@ You can play with the TextBlob-like syntax :
 [('This', 'is'), ('is', 'an'), ('an', 'example'), ('example', 'text')]
 ```
 
-And use the word vectorizer to get word relations :
+And use the words vectorizer to get words relations :
 
 ```python
 >>> large_corpus = """Enter a large text, in preference about history."""
@@ -47,7 +47,7 @@ And use the word vectorizer to get word relations :
 [('queen', 0.86899999)]
 ```
 
-For more usage check [examples](https://github.com/the-new-sky/Kadot/blob/master/examples).
+For more usages, check [examples](https://github.com/the-new-sky/Kadot/blob/master/examples).
 An advanced documentation is coming.
 
 ## 🔨 Installation
