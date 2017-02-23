@@ -19,7 +19,7 @@ class VectorDictionary(object):
 
         if vectors is not None:
             for key, coordinates in vectors.items():
-                if isinstance(coordinates, np.ndarray):  # Check if pre-filled dictionary values are numpy arrays.
+                if not isinstance(coordinates, np.ndarray):  # Check if pre-filled dictionary values are numpy arrays.
                     raise TypeError('`vectors` argument should contain numpy arrays values.')
 
                 if not coordinates.size == dimension:  # Check if pre-filled dictionary respect `dimension` argument.

@@ -1,7 +1,7 @@
 import numpy as np
 from kadot.core import VectorDictionary
 
-to_vector_dict = {'a': np.array([0, 1]), 'b': np.array([2, 3]), 'c': np.array([4, 5]), 'd': [0, 1]}
+to_vector_dict = {'a': np.array([0, 1]), 'b': np.array([2, 3]), 'c': np.array([4, 5]), 'd': np.array([0, 1])}
 vector_dict = VectorDictionary(to_vector_dict, 2)
 
 
