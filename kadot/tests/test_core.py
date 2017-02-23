@@ -1,16 +1,8 @@
-from kadot.core import VectorDictionary, VectorCoordinate
+import numpy as np
+from kadot.core import VectorDictionary
 
-to_vector_dict = {'a': [0, 1], 'b': (2, 3), 'c': {4, 5}, 'd': [0, 1]}
+to_vector_dict = {'a': np.array([0, 1]), 'b': np.array([2, 3]), 'c': np.array([4, 5]), 'd': [0, 1]}
 vector_dict = VectorDictionary(to_vector_dict, 2)
-
-
-def test_values():
-    for value in vector_dict.values():
-        assert isinstance(value, VectorCoordinate)
-
-
-def test_coordinate_type():
-    assert isinstance(vector_dict['c'].coordinates, list)
 
 
 def test_similar():
