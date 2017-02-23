@@ -41,7 +41,7 @@ And use the words vectorizer to get words relations :
 >>> large_corpus = """Enter a large text, in preference about history."""
 >>> history_book = Text(large_corpus)
 >>> vectors = history_book.vectorize(window=20, reduce_rate=300)
->>> vectors.apply_vector(vectors['man'], vectors['woman'], vectors['king'], best=1)
+>>> vectors.apply_translation(vectors['man'], vectors['woman'], vectors['king'], best=1)
 
 # 'man' is to 'woman' what 'king' is to...
 [('queen', 0.86899999)]
@@ -60,3 +60,5 @@ $ pip3 install kadot
 
 ## ⚖️ License
 Kadot is under [MIT license](https://github.com/the-new-sky/Kadot/blob/master/LICENSE.md).
+
+[![forthebadge](http://forthebadge.com/badges/built-with-love.svg)](http://forthebadge.com)

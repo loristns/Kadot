@@ -1,10 +1,11 @@
 from .tokenizers import CharTokenizer
-from .core import VectorDictionary, VectorCoordinate
+from .core import VectorDictionary
+import numpy as np
 
 
 class BaseVectorizer(object):
     """
-    A base class for building vectorizers.
+    A base class for building vectorizers with a scikit-learn like API.
     """
 
     def __init__(self, window=5, tokenizer=CharTokenizer()):
@@ -52,7 +53,7 @@ class WordVectorizer(BaseVectorizer):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
         for n_word in self.unique_words:
-            n_word_vectors = []
+            n_word_vectors = np.empty([0, len(self.unique_words)], dtype=int)
 
             for document in self.processed_documents:
                 doc_n_word_indexes = [i for i, x in enumerate(document) if x == n_word]  # list of index of `n_word` in document
@@ -63,13 +64,15 @@ class WordVectorizer(BaseVectorizer):
                         text_selection = document[index - self.window:index] +\
                                          document[index + 1:index + self.window + 1]
 
-                        n_word_vectors.append([text_selection.count(word) for word in self.unique_words])
+                        n_word_vectors = np.append(n_word_vectors,
+                                                   np.array([[text_selection.count(word) for word in self.unique_words]]),
+                                                   axis=0)
 
                 else:
-                    n_word_vectors.append([0 for i in self.unique_words])
+                    np.append(n_word_vectors, np.zeros(len(self.unique_words)))
 
-            # ...And mean them to build the final vector :
-            vector_dict[n_word] = VectorCoordinate(map(sum, zip(*n_word_vectors)))
+            # ...And sum them to build the final vector :
+            vector_dict[n_word] = np.sum(n_word_vectors, axis=0)
 
         return vector_dict
 
@@ -88,6 +91,6 @@ class DocVectorizer(BaseVectorizer):
             vectorizer.unique_words = self.unique_words
 
             document_vocabulary_vectors = vectorizer.transform()
-            vector_dict[document] = VectorCoordinate(map(sum, zip(*document_vocabulary_vectors.values())))
+            vector_dict[document] = np.mean(np.array(document_vocabulary_vectors.values()), axis=0)
 
         return vector_dict
