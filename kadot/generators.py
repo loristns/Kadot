@@ -7,12 +7,12 @@ class BaseGenerator(object):
     A base class for building text generators.
     """
 
-    def __init__(self, start_end_tokens=('START', 'END')):
+    def __init__(self, start_end_tokens=('START', 'END'), tokenizer=SafeCharTokenizer()):
         """
         :param start_end_tokens: A tuple that contain start and end tokens.
         """
 
-        self.tokenizer = SafeCharTokenizer()
+        self.tokenizer = tokenizer
         self.start_token = start_end_tokens[0]
         self.end_token = start_end_tokens[-1]
 
@@ -48,7 +48,7 @@ class MarkovGenerator(BaseGenerator):
                 else:
                     self.markov_chain[word] = []
 
-    def predict(self, max_word=30):
+    def predict(self, max_word=30, join_chain=""):
         next_word = self.start_token
         generated_suite = []
 
@@ -59,4 +59,4 @@ class MarkovGenerator(BaseGenerator):
             else:
                 generated_suite.append(next_word)
 
-        return "".join(generated_suite)
+        return join_chain.join(generated_suite)

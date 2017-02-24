@@ -16,11 +16,12 @@ class BaseVectorizer(object):
         self.tokenizer = tokenizer
         self.window = window
 
-        self.raw_documents = []  # List of raw documents
-        self.processed_documents = []  # List of tokenized, lowercased documents
         self.unique_words = []  # List of uniques words in `self.document_corpus`
 
     def fit(self, documents):
+        self.raw_documents = []  # List of raw documents
+        self.processed_documents = []  # List of tokenized, lowercased documents
+
         if isinstance(documents, list):
             self.raw_documents += documents
             for doc in documents:
@@ -31,7 +32,7 @@ class BaseVectorizer(object):
             self.processed_documents.append(self.tokenizer.tokenize(documents.lower()))
 
         documents_corpus = self.tokenizer.tokenize(" ".join(self.raw_documents).lower())
-        self.unique_words = list(set(documents_corpus))
+        self.unique_words = list(set(self.unique_words) | set(documents_corpus))
 
     def transform(self):
         pass
