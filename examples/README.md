@@ -1,9 +1,9 @@
-# Kadot examples
+# Kadot Examples
 
-Learn how to play with Kadot !
+Learn how to play with **Kadot** !
 
-## Trump generator
-In this example, we use MarkovGenerator on [Donald Trump tweets archive](https://github.com/bpb27/trump-tweet-archive) to imitate Donald Trump tweets.
+## [💻 Donald Trump Tweets Generator](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_generator.py)
+In this example, we use MarkovGenerator (the Kadot implementation of [Markov Chains](https://en.wikipedia.org/wiki/Markov_chain) on [Donald Trump tweets archive](https://github.com/bpb27/trump-tweet-archive)) to imitate Donald Trump tweets.
 
 As you can see, that's quite funny to use :
 
@@ -17,5 +17,6 @@ As you can see, that's quite funny to use :
     ---------------------------
     Obama's happening!
     ---------------------------
-
 ```
+
+**More examples are coming**
