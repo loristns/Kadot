@@ -61,4 +61,7 @@ $ pip3 install kadot
 ## ⚖️ License
 Kadot is under [MIT license](https://github.com/the-new-sky/Kadot/blob/master/LICENSE.md).
 
+## 🚀 Contribute
+Issues and pull requests are welcome.
+
 [![forthebadge](http://forthebadge.com/badges/built-with-love.svg)](http://forthebadge.com)
