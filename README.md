@@ -16,7 +16,7 @@
 
 ## 🔋 What's included ?
 
-Kadot includes **tokenizers**, text **generators**, word-level and document-level **vectorizers** (and I currently work on *classifiers*).
+Kadot includes **tokenizers**, text **generators**, **classifiers**, word-level and document-level **vectorizers**.
 
 The philosophy of Kadot is *"never hardcode the language rules"* : use **unsupervised solutions** to support most languages. So it will never includes Treebank based algorithms (like a POS Tagger) : use [TextBlob](https://textblob.readthedocs.io/en/dev/) to do that.
 
