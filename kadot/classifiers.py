@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
 from .tokenizers import CharTokenizer
 from .vectorizers import DocVectorizer
 
@@ -42,3 +43,11 @@ class SVMClassifier(BaseClassifier):
         predict_vectors = self.vectorizer.transform()
 
         return dict(zip(documents,self.sk_model.predict(predict_vectors.values())))
+
+
+class BayesClassifier(SVMClassifier):
+
+    def fit(self, documents):
+        BaseClassifier.fit(self, documents)
+
+        self.sk_model = GaussianNB().fit(self.text_vectors.values(), self.labels)

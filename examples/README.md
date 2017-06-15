@@ -22,9 +22,10 @@ As you can see, that's quite funny to use :
 ## [📎 Donald Trump Tweets Keywords Extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_keyword.py)
 *⚠ This is an experiment*
 
-In this example, we use WordVectorizer and DocVectorizer together on [Donald Trump tweets archive](https://github.com/bpb27/trump-tweet-archive) to retrieve words which are most similar to each tweet : the keywords.
+In this example, we use WordVectorizer and the SemanticDocVectorizer together on [Donald Trump tweets archive](https://github.com/bpb27/trump-tweet-archive) to retrieve words which are most similar to each tweet : the keywords.
 
 The force of this system is that keywords are not inevitably contained in the tweet.
+The only issue is performance because run time is proportional to number of tweet in the training...
 
 
 ```

@@ -16,7 +16,7 @@ class BaseVectorizer(object):
         self.tokenizer = tokenizer
         self.window = window
 
-        self.unique_words = []  # List of uniques words in `self.document_corpus`
+        self.unique_words = []  # List of uniques words in `documents_corpus`, see lower.
 
     def fit(self, documents):
         self.raw_documents = []  # List of raw documents
@@ -80,7 +80,21 @@ class WordVectorizer(BaseVectorizer):
 
 class DocVectorizer(BaseVectorizer):
     """
-    Use WordVectorizer to vectorize a whole text.
+    A simple count based/bag-of-word vectorizer, to vectorize a whole text.
+    """
+
+    def transform(self):
+        vector_dict = VectorDictionary(dimension=len(self.unique_words))
+
+        for raw_document, processed_document in zip(self.raw_documents, self.processed_documents):
+            vector_dict[raw_document] = np.array([processed_document.count(word) for word in self.unique_words], dtype=int)
+
+        return vector_dict
+
+
+class SemanticDocVectorizer(BaseVectorizer):
+    """
+    Use the semantic WordVectorizer to vectorize a whole text.
     """
 
     def transform(self):
