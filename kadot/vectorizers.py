@@ -78,6 +78,45 @@ class WordVectorizer(BaseVectorizer):
         return vector_dict
 
 
+
+class PositionalWordVectorizer(BaseVectorizer):
+    """
+    A distributional word vectorizer that use proximity with other words.
+    """
+
+    def transform(self):
+        vector_dict = VectorDictionary(dimension=len(self.unique_words))
+
+        for n_word in self.unique_words:
+            n_word_vectors = np.empty([0, len(self.unique_words)], dtype=int)
+
+            for document in self.processed_documents:
+                doc_n_word_indexes = [i for i, x in enumerate(document) if x == n_word]
+
+                if doc_n_word_indexes:
+                    for index in doc_n_word_indexes:
+                        before_n_word_selection = list(reversed(document[index - self.window:index]))
+                        after_n_word_selection = document[index + 1:index + self.window + 1]
+
+                        vector = []
+                        for word in self.unique_words:
+                            if word in before_n_word_selection:
+                                vector.append(before_n_word_selection.index(word) + 1)
+                            elif word in after_n_word_selection:
+                                vector.append(after_n_word_selection.index(word) + 1)
+                            else:
+                                vector.append(0)
+
+                        n_word_vectors = np.append(n_word_vectors, np.array([vector]), axis=0)
+
+                else:
+                    n_word_vectors = np.append(n_word_vectors, np.array([np.zeros(len(self.unique_words))]), axis=0)
+
+            vector_dict[n_word] = np.ma.median(np.ma.masked_where(n_word_vectors == 0, n_word_vectors), axis=0).filled(0)
+
+        return vector_dict
+
+
 class DocVectorizer(BaseVectorizer):
     """
     A simple count based/bag-of-word vectorizer, to vectorize a whole text.

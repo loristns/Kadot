@@ -19,6 +19,15 @@ As you can see, that's quite funny to use :
     ---------------------------
 ```
 
+## [❤ Sentiment analysis](https://github.com/the-new-sky/Kadot/blob/master/examples/sentiment_analysis.py)
+In this example, we use BayesClassifier to classify if a text is positive or negative. (This example is running on a very small dataset with a limited vocabulary.)
+
+This works well :
+
+```json
+{"I'm a bit allergic to these flowers !": 'neg'}
+```
+
 ## [📎 Donald Trump Tweets Keywords Extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_keyword.py)
 *⚠ This is an experiment*
 

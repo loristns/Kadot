@@ -52,7 +52,7 @@ class MarkovGenerator(BaseGenerator):
         next_word = self.start_token
         generated_suite = []
 
-        for i in range(max_word):
+        for _ in range(max_word):
             next_word = choice(self.markov_chain[next_word])
             if next_word == self.end_token:
                 break

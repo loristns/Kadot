@@ -68,7 +68,7 @@ class VectorDictionary(object):
         similarity_dict = dict()
 
         for key, key_coordinates in self.items():
-            similarity_dict[key] = 1 - spatial.distance.cityblock(key_coordinates, coordinates)  # 1 - distance = similarity
+            similarity_dict[key] = 1 - spatial.distance.cosine(key_coordinates, coordinates)  # 1 - distance = similarity
 
         return Counter(similarity_dict).most_common(best)
 
