@@ -4,7 +4,7 @@ X = "Check the weather in London"
 corpus = [
     "What the weather like in °argument° ?",
     "Give me the weather in °argument°",
-    "Should I need an umbrella °argument° ?",
+    "Should I need an umbrella in °argument° ?",
     X
 ]
 
