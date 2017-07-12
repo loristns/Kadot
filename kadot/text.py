@@ -1,5 +1,6 @@
 from .tokenizers import CharTokenizer
 from .vectorizers import WordVectorizer
+from .generators import MarkovGenerator
 
 
 class Text(object):
@@ -16,11 +17,12 @@ class Text(object):
     'This is another text ! So fun'
     """
 
-    def __init__(self, text, tokenizer=CharTokenizer(), vectorizer=WordVectorizer(), classifier=None):
+    def __init__(self, text, tokenizer=CharTokenizer(), vectorizer=WordVectorizer(), generator=MarkovGenerator(), classifier=None):
 
         self.raw_text = text
         self.words = self.tokens = tokenizer.tokenize(text)
         self.vectorizer = vectorizer
+        self.generator = generator
         self.classifier = classifier
 
     def __str__(self):
@@ -58,6 +60,10 @@ class Text(object):
             return None
         else:
             return self.classifier.predict([self.raw_text])[self.raw_text]
+
+    def imitate(self, max_words=30):
+        self.generator.fit([self.raw_text])
+        return self.generator.predict(max_word=max_words)
 
     def ngrams(self, n=2):
         """
