@@ -28,7 +28,7 @@ This works well :
 I'm a bit allergic to these flowers ! negative
 ```
 
-## [📎 Donald Trump Tweets Keywords Extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_keyword.py)
+## [🔑 Donald Trump Tweets Keywords Extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_keyword.py)
 *⚠ This is an experiment*
 
 In this example, we use WordVectorizer and the SemanticDocVectorizer together on [Donald Trump tweets archive](https://github.com/bpb27/trump-tweet-archive) to retrieve words which are most similar to each tweet : the keywords.
@@ -48,5 +48,14 @@ Yes, it is true - Carlos Slim, the great businessman from Mexico, called me abou
 [('honor', 0.49293058492558117), ('crack', 0.46473941234017313), ('friend', 0.37791344844294561)]
 ```
 
+## [📎 Argument extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/argument_extractor.py)
+*⚠ This is an undocumented experiment*
+
+In this exemple we train a model to get the ability of extracting the name of a city in weather request ("One word" city name). It use the PositionalWordVectorizer that is built for this kind of purpose.
+
+```
+"Check the weather in London"
+[('london', 0.36135237589968239), ('check', 0.25185165593008163), ('the', 0.14426337681843782), ('weather', 0.053644178078582017), ('in', 0.0)]
+```
 
 **More examples are coming**
