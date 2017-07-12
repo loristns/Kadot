@@ -13,8 +13,10 @@ tweet_vectors = tweet_vectorizer.transform()
 
 word_vectorizer = WordVectorizer(window=2)
 word_vectorizer.fit(tweets)
+word_vectorizer.synchronize(tweet_vectorizer)  # Synchronize the two vectorizers
 word_vectors = word_vectorizer.transform()
 
 for tweet in tweets:
     print("\n{}".format(tweet))
-    print(word_vectors.most_similar(tweet_vectors[tweet]))
+    # Print only the keyword not in the tweet
+    print([keyword for keyword in word_vectors.most_similar(tweet_vectors[tweet], 10) if keyword[0] not in tweet.lower()])
