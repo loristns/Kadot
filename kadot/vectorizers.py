@@ -44,6 +44,12 @@ class BaseVectorizer(object):
     def predict(self, documents):
         pass
 
+    def synchronize(self, from_vectorizer):
+        """
+        Synchronize two vectorizer to return compatibles vectors
+        """
+        self.unique_words = from_vectorizer.unique_words
+
 
 class WordVectorizer(BaseVectorizer):
     """
@@ -142,7 +148,7 @@ class SemanticDocVectorizer(BaseVectorizer):
         for document in self.raw_documents:
             vectorizer = WordVectorizer(window=self.window, tokenizer=self.tokenizer)
             vectorizer.fit(document)
-            vectorizer.unique_words = self.unique_words
+            vectorizer.synchronize(self)
 
             document_vocabulary_vectors = vectorizer.transform()
             vector_dict[document] = np.mean(np.array(document_vocabulary_vectors.values()), axis=0)
