@@ -6,6 +6,8 @@ class Text(object):
     """
     A TextBlob `Blob`-like class.
 
+    :param classifier: Pass a trained classifier object.
+
     Examples
     --------
     >>> Text('This is a-text !', tokenizer=CharTokenizer()).tokens
@@ -14,11 +16,12 @@ class Text(object):
     'This is another text ! So fun'
     """
 
-    def __init__(self, text, tokenizer=CharTokenizer(), vectorizer=WordVectorizer()):
+    def __init__(self, text, tokenizer=CharTokenizer(), vectorizer=WordVectorizer(), classifier=None):
 
         self.raw_text = text
         self.words = self.tokens = tokenizer.tokenize(text)
         self.vectorizer = vectorizer
+        self.classifier = classifier
 
     def __str__(self):
         """
@@ -49,6 +52,12 @@ class Text(object):
             return vectors.reduce(reduce_rate)
         else:
             return vectors
+
+    def classify(self):
+        if self.classifier is None:
+            return None
+        else:
+            return self.classifier.predict([self.raw_text])[self.raw_text]
 
     def ngrams(self, n=2):
         """

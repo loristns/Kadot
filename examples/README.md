@@ -25,7 +25,7 @@ In this example, we use BayesClassifier to classify if a text is positive or neg
 This works well :
 
 ```
-{"I'm a bit allergic to these flowers !": 'neg'}
+I'm a bit allergic to these flowers ! negative
 ```
 
 ## [📎 Donald Trump Tweets Keywords Extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_keyword.py)
