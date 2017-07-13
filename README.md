@@ -38,13 +38,12 @@ You can play with the TextBlob-like syntax :
 And use the words vectorizer to get words relations :
 
 ```python
->>> large_corpus = """Enter a large text, in preference about history."""
->>> history_book = Text(large_corpus)
+>>> history_book = text_from_file('history_book.txt')
 >>> vectors = history_book.vectorize(window=20, reduce_rate=300)
 >>> vectors.apply_translation(vectors['man'], vectors['woman'], vectors['king'], best=1)
 
 # 'man' is to 'woman' what 'king' is to...
-[('queen', 0.86899999)]
+[('queen', 0.98872148869)]
 ```
 
 For more usages, check [examples](https://github.com/the-new-sky/Kadot/blob/master/examples).

@@ -68,6 +68,7 @@ class Text(object):
     def ngrams(self, n=2):
         """
         Return n-grams of the text. Hazardously found in the locallyoptimal.com blog.
+
         :param n: length of grams
 
         Examples
@@ -76,3 +77,13 @@ class Text(object):
         [('This', 'is'), ('is', 'a'), ('a', 'text')]
         """
         return list(zip(*[self.tokens[i:] for i in range(n)]))
+
+
+def text_from_file(filename):
+    """
+    Generate a Text() object from the content of a file.
+
+    :param filename: the filename of the file to read
+    """
+    with open(filename) as text_file:
+        return Text(text_file.read())
