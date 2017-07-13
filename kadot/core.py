@@ -60,6 +60,10 @@ class VectorDictionary(object):
     def items(self):
         return list(self.vectors.items())
 
+    def merge(self, dictionary):
+        for key, value in dictionary.items():
+            self.__setitem__(key, value)
+
     def most_similar(self, coordinates, best=5):
         """
         Return the `best` most similar dict entries of `coordinates`.

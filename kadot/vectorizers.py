@@ -84,7 +84,6 @@ class WordVectorizer(BaseVectorizer):
         return vector_dict
 
 
-
 class PositionalWordVectorizer(BaseVectorizer):
     """
     A distributional word vectorizer that use proximity with other words.
