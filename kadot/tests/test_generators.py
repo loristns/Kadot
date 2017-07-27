@@ -1,5 +1,5 @@
 from kadot.generators import BaseGenerator, MarkovGenerator
-from kadot.tokenizers import SafeCharTokenizer
+from kadot.tokenizers import RegexTokenizer, LIGHT_DELIMITER_REGEX
 
 def test_fit():
     generator = BaseGenerator()
@@ -13,4 +13,4 @@ def test_maxlen():
     generator.fit('a b a b a a b b b a b')
     maxlen = 10
 
-    assert len(SafeCharTokenizer().tokenize(generator.predict(maxlen))) <= maxlen
+    assert len(RegexTokenizer(LIGHT_DELIMITER_REGEX).tokenize(generator.predict(maxlen))) <= maxlen
