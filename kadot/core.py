@@ -64,20 +64,25 @@ class VectorDictionary(object):
         for key, value in dictionary.items():
             self.__setitem__(key, value)
 
-    def most_similar(self, coordinates, best=5):
+    def most_similar(self, coordinates, best=None, exclude=None):
         """
         Return the `best` most similar dict entries of `coordinates`.
         """
 
+        if exclude is None:
+            exclude = []
+
         similarity_dict = dict()
 
         for key, key_coordinates in self.items():
-            similarity_dict[key] = 1 - spatial.distance.cosine(key_coordinates, coordinates)  # 1 - distance = similarity
+            if key not in exclude:
+                # 1 - distance = similarity
+                similarity_dict[key] = 1 - spatial.distance.cosine(key_coordinates, coordinates)
 
         return Counter(similarity_dict).most_common(best)
 
-    def apply_translation(self, from1, to1, from2, best=5):
-        return self.most_similar(to1 - from1 + from2, best)
+    def apply_translation(self, from1, to1, from2, best=None, exclude=None):
+        return self.most_similar(to1 - from1 + from2, best, exclude)
 
     def reduce(self, to_dimension=2):
         """
