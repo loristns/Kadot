@@ -1,13 +1,13 @@
 from collections import OrderedDict
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
-from .tokenizers import CharTokenizer
+from .tokenizers import RegexTokenizer
 from .vectorizers import DocVectorizer
 
 
 class BaseClassifier(object):
 
-    def __init__(self, tokenizer=CharTokenizer(), vectorizer=DocVectorizer()):
+    def __init__(self, tokenizer=RegexTokenizer(), vectorizer=DocVectorizer()):
 
         self.vectorizer = vectorizer
         self.vectorizer.tokenizer = tokenizer

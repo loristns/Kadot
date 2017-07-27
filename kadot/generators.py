@@ -1,4 +1,4 @@
-from .tokenizers import SafeCharTokenizer
+from .tokenizers import RegexTokenizer, LIGHT_DELIMITER_REGEX
 from random import choice
 
 
@@ -7,7 +7,7 @@ class BaseGenerator(object):
     A base class for building text generators.
     """
 
-    def __init__(self, start_end_tokens=('START', 'END'), tokenizer=SafeCharTokenizer()):
+    def __init__(self, start_end_tokens=('START', 'END'), tokenizer=RegexTokenizer(LIGHT_DELIMITER_REGEX)):
         """
         :param start_end_tokens: A tuple that contain start and end tokens.
         """
@@ -48,7 +48,7 @@ class MarkovGenerator(BaseGenerator):
                 else:
                     self.markov_chain[word] = []
 
-    def predict(self, max_word=30, join_chain=""):
+    def predict(self, max_word=30, join_chain=" "):
         next_word = self.start_token
         generated_suite = []
 

@@ -8,7 +8,7 @@ corpus = [
     X
 ]
 
-x_tokenized = tokenizers.CharTokenizer().tokenize(X.lower())
+x_tokenized = tokenizers.RegexTokenizer().tokenize(X.lower())
 
 word_vectorizer = vectorizers.PositionalWordVectorizer(window=len(x_tokenized)-1)
 word_vecs = word_vectorizer.fit_transform(corpus)

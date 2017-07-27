@@ -1,4 +1,4 @@
-from .tokenizers import CharTokenizer
+from .tokenizers import RegexTokenizer
 from .core import VectorDictionary
 import numpy as np
 
@@ -8,7 +8,7 @@ class BaseVectorizer(object):
     A base class for building vectorizers with a scikit-learn like API.
     """
 
-    def __init__(self, window=5, tokenizer=CharTokenizer()):
+    def __init__(self, window=5, tokenizer=RegexTokenizer()):
         """
         :param tokenizer: A BaseTokenizer subclass object to tokenize the text
         """

@@ -1,5 +1,6 @@
 import re
 
+LIGHT_DELIMITER_REGEX = "[\r\t\n\v\f ]"
 DELIMITER_REGEX = "[.,!?:;()[\]{}><+\-*/\\= \"'\r\t\n\v\f@^¨`~_|]"
 
 
@@ -22,13 +23,13 @@ class SpaceTokenizer(BaseTokenizer):
         return text.split(" ")
 
 
-class CharTokenizer(BaseTokenizer):
+class RegexTokenizer(BaseTokenizer):
     """
     A tokenizer where word are separated by special characters.
 
     Examples
     --------
-    >>> CharTokenizer().tokenize("This is a-text !")
+    >>> RegexTokenizer().tokenize("This is a-text !")
     ['This', 'is', 'a', 'text']
     """
 
@@ -37,37 +38,3 @@ class CharTokenizer(BaseTokenizer):
 
     def tokenize(self, text):
         return [word for word in re.split(self.delimiter, text) if word]
-
-
-# TODO: This is ugly and should be deleted soon
-class SafeCharTokenizer(CharTokenizer):
-    """
-    Same as CharTokenizer, but save save punctuation. Used for generation tasks.
-
-    Examples
-    --------
-    >>> SafeCharTokenizer().tokenize("This is a-text !")
-    ['This ', 'is ', 'a-', 'text !']
-    """
-
-    def tokenize(self, text):
-        split_regular_char = False
-        tokenized_text = []
-        part_of_word = ""
-
-        for character in text:
-            if split_regular_char:
-                if part_of_word != "" and character not in self.delimiter:
-                    tokenized_text.append(part_of_word)
-                    part_of_word = ""
-                    split_regular_char = False
-
-            elif character in self.delimiter:
-                split_regular_char = True
-
-            part_of_word += character
-
-        if part_of_word != "":
-            tokenized_text.append(part_of_word)
-
-        return tokenized_text

@@ -1,4 +1,4 @@
-from .tokenizers import CharTokenizer
+from .tokenizers import RegexTokenizer
 from .vectorizers import WordVectorizer
 from .generators import MarkovGenerator
 
@@ -11,13 +11,13 @@ class Text(object):
 
     Examples
     --------
-    >>> Text('This is a-text !', tokenizer=CharTokenizer()).tokens
+    >>> Text('This is a-text !', tokenizer=RegexTokenizer()).tokens
     ['This', 'is', 'a', 'text']
     >>> Text('This is another text !') + " " + "So fun"
     'This is another text ! So fun'
     """
 
-    def __init__(self, text, tokenizer=CharTokenizer(), vectorizer=WordVectorizer(), generator=MarkovGenerator(), classifier=None):
+    def __init__(self, text, tokenizer=RegexTokenizer(), vectorizer=WordVectorizer(), generator=MarkovGenerator(), classifier=None):
 
         self.raw_text = text
         self.words = self.tokens = tokenizer.tokenize(text)
