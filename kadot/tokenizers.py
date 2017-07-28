@@ -56,12 +56,11 @@ class RegexTokenizer(BaseTokenizer):
         self.last_starts_with_delimiter = False  # This attribute say if the first element is a delimiter or a token.
 
     def tokenize(self, text):
-        self.last_starts_with_delimiter = self.delimiter.match(text) != None
+        self.last_starts_with_delimiter = self.delimiter.match(text) is not None
         self.last_delimiters = self.delimiter.findall(text)
         self.last_tokens = [word for word in self.delimiter.split(text) if word]
 
         return self.last_tokens
-
 
     def rebuild_last(self, tokens=None):
         if tokens is None:
