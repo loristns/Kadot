@@ -1,6 +1,7 @@
 from .tokenizers import RegexTokenizer
 from .vectorizers import WordVectorizer
 from .generators import MarkovGenerator
+from .fuzz import ratio
 
 
 class Text(object):
@@ -64,6 +65,9 @@ class Text(object):
     def imitate(self, max_words=30):
         self.generator.fit([self.raw_text])
         return self.generator.predict(max_word=max_words)
+
+    def similarity(self, string_b, ignore_case=False, ratio_function=ratio):
+        return ratio_function(self.raw_text, string_b, ignore_case)
 
     def ngrams(self, n=2):
         """
