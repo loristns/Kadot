@@ -18,13 +18,15 @@ class Text(object):
     'This is another text ! So fun'
     """
 
-    def __init__(self, text, tokenizer=RegexTokenizer(), vectorizer=WordVectorizer(), generator=MarkovGenerator(), classifier=None):
+    def __init__(self, text, tokenizer=RegexTokenizer(), vectorizer=WordVectorizer(),
+                 generator=MarkovGenerator(), classifier=None, corrector=None):
 
         self.raw_text = text
         self.words = self.tokens = tokenizer.tokenize(text)
         self.vectorizer = vectorizer
         self.generator = generator
         self.classifier = classifier
+        self.corrector = corrector
 
     def __str__(self):
         """
@@ -46,6 +48,12 @@ class Text(object):
 
     def __add__(self, other):
         return self.raw_text + other
+
+    def correct(self):
+        if self.corrector is None:
+            return None
+        else:
+            return self.corrector.predict([self.raw_text])[0]
 
     def vectorize(self, window=50, reduce_rate=None):
         self.vectorizer.window = window
