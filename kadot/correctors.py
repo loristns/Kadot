@@ -10,6 +10,10 @@ class BaseCorrector(object):
     def fit(self, documents):
         pass
 
+    def fit_from_file(self, filename):
+        with open(filename) as document_file:
+            self.fit([document_file.read()])
+
     def predict(self, documents):
         pass
 

@@ -34,6 +34,10 @@ class BaseVectorizer(object):
         documents_corpus = self.tokenizer.tokenize(" ".join(self.raw_documents).lower())
         self.unique_words = list(set(self.unique_words) | set(documents_corpus))
 
+    def fit_from_file(self, filename):
+        with open(filename) as document_file:
+            self.fit([document_file.read()])
+
     def transform(self):
         pass
 

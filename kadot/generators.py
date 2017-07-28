@@ -27,6 +27,10 @@ class BaseGenerator(object):
         else:
             self.documents.append([self.start_token] + self.tokenizer.tokenize(documents) + [self.end_token])
 
+    def fit_from_file(self, filename):
+        with open(filename) as document_file:
+            self.fit([document_file.read()])
+
     def predict(self, max_word=30):
         pass
 
