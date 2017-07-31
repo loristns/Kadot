@@ -1,13 +1,15 @@
+from .core import Fittable
+from .tokenizers import RegexTokenizer
+from .vectorizers import DocVectorizer
 from collections import OrderedDict
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
-from .tokenizers import RegexTokenizer
-from .vectorizers import DocVectorizer
 
 
-class BaseClassifier(object):
+class BaseClassifier(Fittable):
 
     def __init__(self, tokenizer=RegexTokenizer(), vectorizer=DocVectorizer()):
+        Fittable.__init__(self)
 
         self.vectorizer = vectorizer
         self.vectorizer.tokenizer = tokenizer
@@ -16,6 +18,8 @@ class BaseClassifier(object):
         """
         :param documents: a dict containing text as keys and label as values
         """
+        Fittable.fit(self, documents)
+
         documents = OrderedDict(documents)
 
         self.labels = list(documents.values())

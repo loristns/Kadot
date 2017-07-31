@@ -1,8 +1,9 @@
+from .core import Fittable
 from .tokenizers import RegexTokenizer, LIGHT_DELIMITER_REGEX
 from random import choice
 
 
-class BaseGenerator(object):
+class BaseGenerator(Fittable):
     """
     A base class for building text generators.
     """
@@ -11,25 +12,23 @@ class BaseGenerator(object):
         """
         :param start_end_tokens: A tuple that contain start and end tokens.
         """
+        Fittable.__init__(self)
 
         self.tokenizer = tokenizer
         self.start_token = start_end_tokens[0]
         self.end_token = start_end_tokens[-1]
 
-        self.documents = []
+        self.tokenized_documents = []
 
     def fit(self, documents):
         """Prepare and save the documents."""
+        Fittable.fit(self, documents)
 
         if isinstance(documents, list):
             for doc in documents:
-                self.documents.append([self.start_token] + self.tokenizer.tokenize(doc) + [self.end_token])
+                self.tokenized_documents.append([self.start_token] + self.tokenizer.tokenize(doc) + [self.end_token])
         else:
-            self.documents.append([self.start_token] + self.tokenizer.tokenize(documents) + [self.end_token])
-
-    def fit_from_file(self, filename):
-        with open(filename) as document_file:
-            self.fit([document_file.read()])
+            self.tokenized_documents.append([self.start_token] + self.tokenizer.tokenize(documents) + [self.end_token])
 
     def predict(self, max_word=30):
         pass
@@ -39,10 +38,11 @@ class MarkovGenerator(BaseGenerator):
 
     def fit(self, documents):
         BaseGenerator.fit(self, documents)
+
         self.markov_chain = dict()
 
         # Generate a basic markov chain
-        for corpus in self.documents:
+        for corpus in self.tokenized_documents:
             for index, word in enumerate(corpus):
                 if not word == self.end_token:
                     if word in self.markov_chain.keys():

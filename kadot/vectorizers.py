@@ -1,9 +1,9 @@
+from .core import VectorDictionary, Fittable
 from .tokenizers import RegexTokenizer
-from .core import VectorDictionary
 import numpy as np
 
 
-class BaseVectorizer(object):
+class BaseVectorizer(Fittable):
     """
     A base class for building vectorizers with a scikit-learn like API.
     """
@@ -12,6 +12,7 @@ class BaseVectorizer(object):
         """
         :param tokenizer: A BaseTokenizer subclass object to tokenize the text
         """
+        Fittable.__init__(self)
 
         self.tokenizer = tokenizer
         self.window = window
@@ -19,24 +20,21 @@ class BaseVectorizer(object):
         self.unique_words = []  # List of uniques words in `documents_corpus`, see lower.
 
     def fit(self, documents):
-        self.raw_documents = []  # List of raw documents
+        Fittable.fit(self, documents)
+
         self.processed_documents = []  # List of tokenized, lowercased documents
 
         if isinstance(documents, list):
-            self.raw_documents += documents
+            self.documents += documents
             for doc in documents:
                 self.processed_documents.append(self.tokenizer.tokenize(doc.lower()))
 
         else:
-            self.raw_documents.append(documents)
+            self.documents.append(documents)
             self.processed_documents.append(self.tokenizer.tokenize(documents.lower()))
 
-        documents_corpus = self.tokenizer.tokenize(" ".join(self.raw_documents).lower())
+        documents_corpus = self.tokenizer.tokenize(" ".join(self.documents).lower())
         self.unique_words = list(set(self.unique_words) | set(documents_corpus))
-
-    def fit_from_file(self, filename):
-        with open(filename) as document_file:
-            self.fit([document_file.read()])
 
     def transform(self):
         pass
@@ -134,7 +132,7 @@ class DocVectorizer(BaseVectorizer):
     def transform(self):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
-        for raw_document, processed_document in zip(self.raw_documents, self.processed_documents):
+        for raw_document, processed_document in zip(self.documents, self.processed_documents):
             vector_dict[raw_document] = np.array([processed_document.count(word) for word in self.unique_words], dtype=int)
 
         return vector_dict
@@ -148,7 +146,7 @@ class SemanticDocVectorizer(BaseVectorizer):
     def transform(self):
         vector_dict = VectorDictionary(dimension=len(self.unique_words))
 
-        for document in self.raw_documents:
+        for document in self.documents:
             vectorizer = WordVectorizer(window=self.window, tokenizer=self.tokenizer)
             vectorizer.fit(document)
             vectorizer.synchronize(self)

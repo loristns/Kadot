@@ -5,7 +5,7 @@ def test_fit():
     generator = BaseGenerator()
     generator.fit(['hello world !'])
 
-    assert generator.documents[0] == ['START', 'hello', 'world', '!', 'END']
+    assert generator.tokenized_documents[0] == ['START', 'hello', 'world', '!', 'END']
 
 
 def test_maxlen():

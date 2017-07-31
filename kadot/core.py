@@ -4,6 +4,21 @@ from scipy import spatial
 from sklearn.decomposition import TruncatedSVD
 
 
+class Fittable(object):
+    """
+    A mother class that provide fitting functionality
+    """
+    def __init__(self):
+        self.documents = []
+
+    def fit(self, documents):
+        self.documents += documents
+
+    def fit_from_file(self, filename):
+        with open(filename) as document_file:
+            self.fit([document_file.read()])
+
+
 class VectorDictionary(object):
     """
     A dictionary that contain coordinates of a named document in vectorization (of words or text).
