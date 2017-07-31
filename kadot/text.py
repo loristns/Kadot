@@ -1,7 +1,7 @@
 from .tokenizers import RegexTokenizer
 from .vectorizers import WordVectorizer
 from .generators import MarkovGenerator
-from .fuzz import ratio
+from .fuzzy import ratio
 
 
 class Text(object):
