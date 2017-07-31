@@ -24,11 +24,8 @@ class BaseGenerator(Fittable):
         """Prepare and save the documents."""
         Fittable.fit(self, documents)
 
-        if isinstance(documents, list):
-            for doc in documents:
-                self.tokenized_documents.append([self.start_token] + self.tokenizer.tokenize(doc) + [self.end_token])
-        else:
-            self.tokenized_documents.append([self.start_token] + self.tokenizer.tokenize(documents) + [self.end_token])
+        for doc in self.documents:
+            self.tokenized_documents.append([self.start_token] + self.tokenizer.tokenize(doc) + [self.end_token])
 
     def predict(self, max_word=30):
         pass

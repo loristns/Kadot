@@ -53,7 +53,7 @@ class Text(object):
         if self.corrector is None:
             return None
         else:
-            return self.corrector.predict([self.raw_text])[0]
+            return self.corrector.predict(self.raw_text)[0]
 
     def vectorize(self, window=50, reduce_rate=None):
         self.vectorizer.window = window
@@ -68,10 +68,10 @@ class Text(object):
         if self.classifier is None:
             return None
         else:
-            return self.classifier.predict([self.raw_text])[self.raw_text]
+            return self.classifier.predict(self.raw_text)[self.raw_text]
 
     def imitate(self, max_words=30):
-        self.generator.fit([self.raw_text])
+        self.generator.fit(self.raw_text)
         return self.generator.predict(max_word=max_words)
 
     def similarity(self, string_b, ignore_case=False, ratio_function=ratio):

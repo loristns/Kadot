@@ -24,14 +24,8 @@ class BaseVectorizer(Fittable):
 
         self.processed_documents = []  # List of tokenized, lowercased documents
 
-        if isinstance(documents, list):
-            self.documents += documents
-            for doc in documents:
-                self.processed_documents.append(self.tokenizer.tokenize(doc.lower()))
-
-        else:
-            self.documents.append(documents)
-            self.processed_documents.append(self.tokenizer.tokenize(documents.lower()))
+        for doc in self.documents:
+            self.processed_documents.append(self.tokenizer.tokenize(doc.lower()))
 
         documents_corpus = self.tokenizer.tokenize(" ".join(self.documents).lower())
         self.unique_words = list(set(self.unique_words) | set(documents_corpus))

@@ -10,13 +10,14 @@ class SpellingCorrector(Fittable):
 
     def __init__(self, tokenizer=RegexTokenizer()):
         Fittable.__init__(self)
+
         self.tokenizer = tokenizer
         self.words = set()
 
     def fit(self, documents):
         Fittable.fit(self, documents)
 
-        for document in documents:
+        for document in self.documents:
             self.words.update(self.tokenizer.tokenize(document))
             self.words.update(self.tokenizer.tokenize(document.lower()))  # Add a lowercase version of the vocabulary
 
@@ -51,7 +52,7 @@ class StopWordDetector(Fittable):
     def fit(self, documents):
         Fittable.fit(self, documents)
 
-        for document in documents:
+        for document in self.documents:
             tokenized_document = self.tokenizer.tokenize(document.lower())
 
             self.unique_words.update(tokenized_document)

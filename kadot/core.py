@@ -12,7 +12,10 @@ class Fittable(object):
         self.documents = []
 
     def fit(self, documents):
-        self.documents += documents
+        if isinstance(documents, list):
+            self.documents += documents
+        else:
+            self.documents.append(str(documents))
 
     def fit_from_file(self, filename):
         with open(filename) as document_file:
