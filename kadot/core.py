@@ -2,6 +2,7 @@ from collections import OrderedDict, Counter
 import numpy as np
 from scipy import spatial
 from sklearn.decomposition import TruncatedSVD
+from urllib.request import urlopen
 
 
 class Fittable(object):
@@ -19,7 +20,11 @@ class Fittable(object):
 
     def fit_from_file(self, filename):
         with open(filename) as document_file:
-            self.fit([document_file.read()])
+            self.fit(document_file.read())
+
+    def fit_from_url(self, url):
+        with urlopen(url) as url_page:
+            return self.fit(url_page.read().decode('utf-8'))
 
 
 class VectorDictionary(object):

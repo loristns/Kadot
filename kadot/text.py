@@ -2,6 +2,7 @@ from .tokenizers import RegexTokenizer
 from .vectorizers import WordVectorizer
 from .generators import MarkovGenerator
 from .fuzzy import ratio
+from urllib.request import urlopen
 
 
 class Text(object):
@@ -99,3 +100,13 @@ def text_from_file(filename):
     """
     with open(filename) as text_file:
         return Text(text_file.read())
+
+
+def text_from_url(url):
+    """
+    Generate a Text() object from the content of a text webpage.
+
+    :param url: the url of the webpage to
+    """
+    with urlopen(url) as url_page:
+        return Text(url_page.read().decode('utf-8'))
