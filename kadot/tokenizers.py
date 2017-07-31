@@ -70,3 +70,7 @@ class RegexTokenizer(BaseTokenizer):
         self.last_tokens = [word for word in self.delimiter.split(text) if word]
 
         return self.last_tokens
+
+
+def tokenize(text, tokenizer=RegexTokenizer()):
+    return tokenizer.tokenize(text)
