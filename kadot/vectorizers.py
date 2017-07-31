@@ -17,12 +17,11 @@ class BaseVectorizer(Fittable):
         self.tokenizer = tokenizer
         self.window = window
 
-        self.unique_words = []  # List of uniques words in `documents_corpus`, see lower.
+        self.processed_documents = []  # List of tokenized, lowercased documents
+        self.unique_words = []  # List of uniques words in all documents.
 
     def fit(self, documents):
         Fittable.fit(self, documents)
-
-        self.processed_documents = []  # List of tokenized, lowercased documents
 
         for doc in self.documents:
             self.processed_documents.append(self.tokenizer.tokenize(doc.lower()))
