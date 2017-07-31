@@ -16,7 +16,7 @@
 
 ## 🔋 What's included ?
 
-Kadot includes **tokenizers**, text **generators**, **classifiers**, word-level and document-level **vectorizers**.
+Kadot includes **tokenizers**, text **generators**, **classifiers**, word-level and document-level **vectorizers** as well as a **spell checker**, a **fuzzy string matching** utility or a **stopwords detector**.
 
 The philosophy of Kadot is *"never hardcode the language rules"* : use **unsupervised solutions** to support most languages. So it will never includes Treebank based algorithms (like a POS Tagger) : use [TextBlob](https://textblob.readthedocs.io/en/dev/) to do that.
 
@@ -25,17 +25,17 @@ You can play with the TextBlob-like syntax :
 
 ```python
 >>> from kadot import Text
->>> example_text = Text("This is an example text !")
+>>> example_text = Text("This is a text sample !")
 >>> example_text.words
 
-['This', 'is', 'an', 'example', 'text']
+['This', 'is', 'a', 'text', 'sample']
 
 >>> example_text.ngrams(n=2)
 
-[('This', 'is'), ('is', 'an'), ('an', 'example'), ('example', 'text')]
+[('This', 'is'), ('is', 'a'), ('a', 'text'), ('text', 'sample')]
 ```
 
-And use the words vectorizer to get words relations :
+Or you can use the words vectorizer to get words relations :
 
 ```python
 >>> history_book = text_from_file('history_book.txt')
@@ -51,11 +51,13 @@ An advanced documentation is coming.
 
 ## 🔨 Installation
 
-Use the `pip` command that refair to the Python 3.5 or 3.6 interpreter. 
+Use the `pip` command that refair to you Python 3.x interpreter. 
 In my case :
 ```
 $ pip3 install kadot
 ```
+
+It actually require the Python's standard library, Numpy, Scipy and Scikit-Learn.
 
 ## ⚖️ License
 Kadot is under [MIT license](https://github.com/the-new-sky/Kadot/blob/master/LICENSE.md).
