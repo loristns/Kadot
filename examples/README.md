@@ -51,11 +51,11 @@ Yes, it is true - Carlos Slim, the great businessman from Mexico, called me abou
 ## [📎 Argument extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/argument_extractor.py)
 *⚠ This is an undocumented experiment*
 
-In this exemple we train a model to get the ability of extracting the name of a city in weather request ("One word" city name). It use the PositionalWordVectorizer that is built for this kind of purpose.
+In this exemple we train a AdaBoost (Decision Trees) classifier to get the ability of extracting the name of a city in weather request. It use the PositionalWordVectorizer that is built for this kind of purpose.
 
 ```
-"Check the weather in London"
-[('london', 0.36135237589968239), ('check', 0.25185165593008163), ('the', 0.14426337681843782), ('weather', 0.053644178078582017), ('in', 0.0)]
+"the forecast for New-York"
+['york', 'new-york']
 ```
 
 **More examples are coming**
