@@ -1,8 +1,6 @@
 from .tokenizers import RegexTokenizer
 from .vectorizers import DocVectorizer
 from collections import OrderedDict
-from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
 
 
 class BaseClassifier(object):
@@ -10,6 +8,9 @@ class BaseClassifier(object):
     def __init__(self, tokenizer=RegexTokenizer(), vectorizer=DocVectorizer()):
         self.vectorizer = vectorizer
         self.vectorizer.tokenizer = tokenizer
+
+        self.labels = []
+        self.text_vectors = {}
 
     def fit(self, documents):
         """
@@ -28,12 +29,17 @@ class BaseClassifier(object):
         pass
 
 
-class SVMClassifier(BaseClassifier):
+class ScikitClassifier(BaseClassifier):
+
+    def __init__(self, scikit_classifier, tokenizer=RegexTokenizer(), vectorizer=DocVectorizer()):
+        BaseClassifier.__init__(self, tokenizer, vectorizer)
+
+        self.scikit_model = scikit_classifier
 
     def fit(self, documents):
         BaseClassifier.fit(self, documents)
 
-        self.sk_model = SVC().fit(self.text_vectors.values(), self.labels)
+        self.scikit_model.fit(self.text_vectors.values(), self.labels)
 
     def predict(self, documents):
         if not isinstance(documents, list):
@@ -45,12 +51,5 @@ class SVMClassifier(BaseClassifier):
 
         predict_vectors = self.vectorizer.transform()
 
-        return dict(zip(documents, self.sk_model.predict(predict_vectors.values())))
+        return dict(zip(documents, self.scikit_model.predict(predict_vectors.values())))
 
-
-class BayesClassifier(SVMClassifier):
-
-    def fit(self, documents):
-        BaseClassifier.fit(self, documents)
-
-        self.sk_model = GaussianNB().fit(self.text_vectors.values(), self.labels)

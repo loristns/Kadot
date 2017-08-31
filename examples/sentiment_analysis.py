@@ -1,5 +1,7 @@
 from kadot import Text
-from kadot.classifiers import BayesClassifier
+from kadot.classifiers import ScikitClassifier
+from sklearn.naive_bayes import GaussianNB
+
 
 # This is a small improvised dataset :)
 sentiment_texts = {
@@ -9,7 +11,7 @@ sentiment_texts = {
     "This gift is broken !": 'negative'
 }
 
-bayes = BayesClassifier()
+bayes = ScikitClassifier(GaussianNB())
 bayes.fit(sentiment_texts)
 
 test = Text("I'm a bit allergic to these flowers !", classifier=bayes)

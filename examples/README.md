@@ -51,7 +51,7 @@ Yes, it is true - Carlos Slim, the great businessman from Mexico, called me abou
 ## [📎 Argument extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/argument_extractor.py)
 *⚠ This is an undocumented experiment*
 
-In this exemple we train a AdaBoost (Decision Trees) classifier to get the ability of extracting the name of a city in weather request. It use the PositionalWordVectorizer that is built for this kind of purpose.
+In this example, we train an AdaBoost (Decision Trees) classifier to get the ability of extracting the name of a city in a weather request. It use the PositionalWordVectorizer which is built for this kind of purposes.
 
 ```
 "the forecast for New-York"

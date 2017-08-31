@@ -6,7 +6,6 @@ from sklearn.ensemble import AdaBoostClassifier
 def dataset_generator(document):
     """
     This function generate texts from one trying to find a composed word.
-
     Examples
     --------
     >>> set(dataset_generator("I'm bob"))
@@ -96,12 +95,12 @@ if __name__ == '__main__':
     ]
 
     query = input("Your query : ")
-    adaboost_estimators = int(input("How many AdaBoost estimators ? (Work well with 100) >>> "))
-    vectorizer_window = int(input("How large is the vectorizer window ? (Work well with 6) >>> "))
+    adaboost_estimators = int(input("How many AdaBoost estimators ? (Works well with 100) >>> "))
+    vectorizer_window = int(input("How large is the vectorizer window ? (Works well with 6) >>> "))
 
     extended_query = dataset_generator(query)
     query_unique_words = get_unique_words(extended_query)
-    full_unique_words = get_unique_words(train_corpus) + query_unique_words  # Get the features set
+    full_unique_words = list(set(get_unique_words(train_corpus) + query_unique_words))  # Get the features set
 
     # Training time !
 
