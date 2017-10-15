@@ -20,12 +20,12 @@ As you can see, that's quite funny to use :
 ```
 
 ## [❤ Sentiment analysis](https://github.com/the-new-sky/Kadot/blob/master/examples/sentiment_analysis.py)
-In this example, we use BayesClassifier to classify if a text is positive or negative. (This example is running on a very small dataset with a limited vocabulary.)
+In this example, we use ScikitClassifier (and a Naive Bayes classifer) to classify if a movie review is positive or negative.
 
 This works well :
 
 ```
-I'm a bit allergic to these flowers ! negative
+"I am never paying to see another Star Wars movie ever again." is negative
 ```
 
 ## [🔑 Donald Trump Tweets Keywords Extractor](https://github.com/the-new-sky/Kadot/blob/master/examples/trump_keyword.py)

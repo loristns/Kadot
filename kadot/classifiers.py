@@ -46,10 +46,10 @@ class ScikitClassifier(BaseClassifier):
             documents = [str(documents)]
 
         unique_word_save = self.vectorizer.unique_words
+        self.vectorizer.processed_documents = []
+
         self.vectorizer.fit(documents)
         self.vectorizer.unique_words = unique_word_save
 
         predict_vectors = self.vectorizer.transform()
-
-        return dict(zip(documents, self.scikit_model.predict(predict_vectors.values())))
-
+        return {document: self.scikit_model.predict(predict_vectors[document].reshape(1, -1))[0] for document in documents}
