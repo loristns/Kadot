@@ -1,14 +1,21 @@
 from kadot.tokenizers import Tokens
 from kadot.utils import SavedObject, unique_words
-from collections import Counter, OrderedDict, UserDict
+from collections import Counter
 from typing import Callable, List, Optional, Sequence, Tuple, Union
-from gensim.models import Word2Vec  # TODO : Switch to pytorch
 import numpy as np
-import scipy.spatial.distance
-from sklearn.decomposition import TruncatedSVD
+import scipy.sparse, scipy.spatial
 
-CBOW_MODEL = {'sg': 0}
-SKIP_GRAM_MODEL = {'sg': 1}
+CBOW_MODEL = {'sg': 0, 'min_count': 1}
+SKIP_GRAM_MODEL = {'sg': 1, 'min_count': 1}
+
+
+def cosine_similarity(vector1: np.ndarray, vector2: np.ndarray) -> float:
+    """
+    Calculates the cosine similarity of two vectors.
+    """
+
+    # 1 - distance = similarity
+    return 1 - scipy.spatial.distance.cosine(vector1, vector2)
 
 
 def handle_corpus(corpus: Union[Tokens, Sequence[Tokens]]) -> Tuple[List[List[str]], List[str]]:
@@ -34,50 +41,70 @@ def handle_corpus(corpus: Union[Tokens, Sequence[Tokens]]) -> Tuple[List[List[st
     return tokens, raw_texts
 
 
-def cosine_similarity(vector1: np.ndarray, vector2: np.ndarray) -> float:
-    """
-    Calculates the cosine similarity of two vectors.
-    """
-
-    # 1 - distance = similarity
-    return 1 - scipy.spatial.distance.cosine(vector1, vector2)
-
-
-class VectorDict(SavedObject, UserDict):
+class VectorDict(SavedObject):
     """
     An ordered dict to store vectors associated with their documents.
     """
 
-    def __init__(self, *args, **kwargs):
-        UserDict.__init__(self)
+    def __init__(self,
+                 keys: list,
+                 matrix: Union[np.ndarray, scipy.sparse.lil_matrix],
+                 sparse=False):
 
-        self.data = OrderedDict(*args, **kwargs)
-        self.unique_words = None
+        self.vocabulary = keys
+        self.is_sparse = sparse
+
+        if self.is_sparse:
+            self.matrix = scipy.sparse.lil_matrix(matrix)
+        else:
+            self.matrix = matrix
 
     def __repr__(self):
-        return "VectorDict()"
+        return "VectorDict({})".format(self.matrix.shape)
 
     def __getitem__(self, item):
-        if isinstance(item, int):
-            return self.data[self.keys()[item]]
+        if isinstance(item, str):
+            item_index = self.vocabulary.index(item)
+        elif isinstance(item, int):
+            item_index = item
+
+        if self.is_sparse:
+            return self.matrix[item_index].toarray()
         else:
-            return self.data[item]
+            return self.matrix[item_index]
 
     def keys(self):
-        return list(self.data.keys())
+        return self.vocabulary
 
     def values(self):
-        return list(self.data.values())
+        return self.matrix
 
-    def items(self, sk_mode=False):
+    def items(self):
+        return list(zip(self.keys(), self.values()))
+
+    def g_values(self):
         """
-        :param sk_mode: If set to True, the values will be reshaped to work
-         with scikit-learn.
+        A generator behaving like the `value` method but converting
+        sparse matrices into numpy array.
         """
-        if sk_mode:
-            return [(key, value.reshape(1, -1)) for key, value in self.data.items()]
-        else:
-            return list(self.data.items())
+
+        for value in self.matrix:
+            if self.is_sparse:
+                yield value.toarray()
+            else:
+                yield value
+
+    def g_items(self):
+        """
+        A generator behaving like the `item` method but converting
+        sparse matrices into numpy array.
+        """
+
+        for key, value in self.items():
+            if self.is_sparse:
+                yield key, value.toarray()
+            else:
+                yield key, value
 
     def most_similar(self,
                      coordinates: Union[str, np.ndarray],
@@ -93,19 +120,21 @@ class VectorDict(SavedObject, UserDict):
 
         :param exclude: a list of words to exclude from the result.
 
+        :param similarity: a function calculating the similarity between two vectors.
+
         :return: a list of tuples containing the most similar words
          and their cosine similarities.
         """
 
         if not isinstance(coordinates, np.ndarray):
-            coordinates = self.data[coordinates]
+            coordinates = self[coordinates]
 
         if exclude is None:
             exclude = []
 
         similarity_dict = dict()
 
-        for key, key_coordinates in self.items():
+        for key, key_coordinates in self.g_items():
             if key not in exclude:
                 similarity_dict[key] = similarity(key_coordinates, coordinates)
 
@@ -124,23 +153,23 @@ class VectorDict(SavedObject, UserDict):
         For example: "The man is to the woman what the king is to... the queen."
         """
 
-        if not isinstance(from1, np.ndarray): from1 = self.data[from1]
-        if not isinstance(from2, np.ndarray): from2 = self.data[from2]
-        if not isinstance(to1, np.ndarray): to1 = self.data[to1]
+        if not isinstance(from1, np.ndarray): from1 = self[from1]
+        if not isinstance(from2, np.ndarray): from2 = self[from2]
+        if not isinstance(to1, np.ndarray): to1 = self[to1]
 
         return self.most_similar(to1 - from1 + from2, best, exclude, similarity)
 
     def doesnt_match(self, keys: list) -> str:
         """
-        Search the intruder in a dictionary key list.
+        Search the intruder in a list of keys.
         """
 
-        average_vector = np.mean([self.data[key] for key in keys], axis=0)
+        average_vector = np.mean([self[key] for key in keys], axis=0)
 
         max_distance = 0
         max_distance_key = None
         for key in keys:
-            vector = self.data[key]
+            vector = self[key]
             vector_distance = scipy.spatial.distance.cosine(average_vector,
                                                             vector)
             if vector_distance > max_distance:
@@ -148,6 +177,48 @@ class VectorDict(SavedObject, UserDict):
                 max_distance_key = key
 
         return max_distance_key
+
+
+def word_vectorizer(
+        corpus: Union[Tokens, Sequence[Tokens]],
+        window: int = 4,
+        vocabulary: Optional[Sequence[str]] = None
+        ) -> VectorDict:
+    """
+    A distributional word vectorizer constructing a co-occurrence matrix
+    and applying a dimension reduction algorithm on it.
+
+    :param corpus: a list of Tokens objects or a Tokens object.
+
+    :param window: the size of a word context window side.
+
+    :param vocabulary: the vocabulary used for vectorization in the form of a
+     word list, or if None (default), the vocabulary would be extracted from the corpus.
+
+    :return: a VectorDict object containing the word vectors.
+    """
+
+    corpus_tokens, corpus_texts = handle_corpus(corpus)
+
+    if vocabulary is None:
+        vocabulary = unique_words(sum(corpus_tokens, []))
+
+    len_vocabulary = len(vocabulary)
+    cooc_matrix = scipy.sparse.lil_matrix((len_vocabulary, len_vocabulary))
+
+    for document_tokens in corpus_tokens:
+
+        len_document = len(document_tokens)
+        doc_voc_indices = [vocabulary.index(word) for word in document_tokens]
+
+        for word_position, row_index in enumerate(doc_voc_indices):
+            word_window = doc_voc_indices[max(0, word_position - window): word_position] +\
+                          doc_voc_indices[word_position + 1: min(len_document + 1, word_position + 1 + window)]
+
+            for col_index in word_window:
+                    cooc_matrix[row_index, col_index] += 1
+
+    return VectorDict(vocabulary, cooc_matrix, sparse=True)
 
 
 def word2vec_vectorizer(
@@ -158,128 +229,72 @@ def word2vec_vectorizer(
         model=CBOW_MODEL
         ) -> VectorDict:
     """
-    A vectorizer using the word2vec algorithm (working with Gensim).
+    A word vectorizer using the word2vec algorithm (require Gensim).
 
     :param corpus: a list of Tokens objects or a Tokens object.
 
     :param dimension: the number of dimensions of word vectors.
 
-    :param model: the model used by word2vec: CBOW (default) or Skip-Gram.
+    :param model: parameters to pass to the gensim vectorizer.
+     https://radimrehurek.com/gensim/models/word2vec.html
 
     :return: a VectorDict object containing the word vectors.
     """
 
-    corpus, _ = handle_corpus(corpus)
-    vector_dict = VectorDict()
+    from gensim.models import Word2Vec
 
-    model = Word2Vec(corpus, size=dimension, window=window,
-                     iter=iter, min_count=1, **model)
+    corpus_tokens, _ = handle_corpus(corpus)
+    vocabulary = unique_words(sum(corpus_tokens, []))
 
-    for word in unique_words(sum(corpus, [])):
-        vector_dict[word] = model.wv[word]
+    vector_matrix = np.zeros((len(vocabulary), dimension))
+    word2vec = Word2Vec(corpus_tokens, size=dimension, window=window,
+                        iter=iter, **model)
 
-    return vector_dict
+    for row_index, word in enumerate(vocabulary):
+        vector_matrix[row_index] = word2vec.wv[word]
+
+    return VectorDict(vocabulary, vector_matrix)
 
 
-def word_vectorizer(
+def fasttext_vectorizer(
         corpus: Union[Tokens, Sequence[Tokens]],
-        dimension: Optional[int] = None,
+        dimension: int,
         window: int = 4,
-        vocabulary: Optional[Sequence[str]] = None
+        iter: int = 1000,
+        model=CBOW_MODEL
         ) -> VectorDict:
     """
-    A distributional word vectorizer constructing a co-occurrence matrix
-    and applying a dimension reduction algorithm on it.
+    A word vectorizer using the FastText algorithm (require Gensim).
 
     :param corpus: a list of Tokens objects or a Tokens object.
 
-    :param dimension: the number of dimensions of final word vectors.
-     If None, the default value, no dimension reduction will be applied.
+    :param dimension: the number of dimensions of word vectors.
 
-    :param vocabulary: the vocabulary used for vectorization in the form of a
-     word list, or if None (default), the vocabulary would be extracted from the corpus.
+    :param model: parameters to pass to the gensim vectorizer.
+     https://radimrehurek.com/gensim/models/fasttext.html
 
     :return: a VectorDict object containing the word vectors.
     """
 
-    def build_window(document: Sequence[str],index: int,window: int) -> List[str]:
-        """
-        Utility function to generate the context window around a word.
+    from gensim.models.fasttext import FastText
 
-        :param document: the tokenized document (in a list form) containing
-         the word to observe.
+    corpus_tokens, _ = handle_corpus(corpus)
+    vocabulary = unique_words(sum(corpus_tokens, []))
 
-        :param index: the index of the word to observe in the document.
+    vector_matrix = np.zeros((len(vocabulary), dimension))
+    word2vec = FastText(corpus_tokens, size=dimension, window=window,
+                        iter=iter, **model)
 
-        :param window: the size of the context window.
+    for row_index, word in enumerate(vocabulary):
+        vector_matrix[row_index] = word2vec.wv[word]
 
-        :return: the list of surrounding words in the context window.
-        """
-
-        left_selection = []
-        right_selection = []
-        for i, word in enumerate(reversed(document[:index])):
-            if i < window:
-                left_selection.append(word)
-
-        for i, word in enumerate(document[index+1:]):
-            if i < window:
-                right_selection.append(word)
-
-        return list(reversed(left_selection)) + right_selection
-
-    def dimension_reduction(vector_dict: np.ndarray, to_dimension: int) -> np.ndarray:
-        """
-        Utility function to reduce the size of all vectors of a VectorDict.
-        """
-
-        raw_coordinates = np.array(vector_dict.values())
-
-        SVD_model = TruncatedSVD(n_components=to_dimension)
-        reduced_coordinates = SVD_model.fit_transform(raw_coordinates)
-
-        reduced_vector_dict = VectorDict()
-        for index, key in enumerate(vector_dict.keys()):
-            reduced_vector_dict[key] = reduced_coordinates[index]
-
-        return reduced_vector_dict
-
-    corpus_tokens, corpus_texts = handle_corpus(corpus)
-    vector_dict = VectorDict()
-
-    if vocabulary is None:
-        vocabulary = unique_words(sum(corpus_tokens, []))
-
-    vector_dict.unique_words = vocabulary
-
-    for word in vocabulary:
-        word_vectors = np.zeros(len(vocabulary))
-        word_count = 0
-
-        for document in corpus_tokens:
-            # lists all word indexes in the document.
-            document_word_indexes = [index for index, doc_word in enumerate(document) if doc_word == word]
-            word_count += len(document_word_indexes)
-
-            for index in document_word_indexes:
-                # Creates a vector for each index and adds it to the total word vector.
-                selection = build_window(document, index, window)
-
-                word_vectors = np.add(word_vectors,
-                                      np.array([selection.count(unique_word) for unique_word in vocabulary]))
-
-        # The final vector is the division of the total word vector by the number of times the word appears (= average vector).
-        vector_dict[word] = word_vectors / word_count
-
-    if dimension is not None:
-        vector_dict = dimension_reduction(vector_dict, dimension)
-
-    return vector_dict
+    return VectorDict(vocabulary, vector_matrix)
 
 
 def centroid_document_vectorizer(
         corpus: Union[Tokens, Sequence[Tokens]],
-        word_vectors: VectorDict
+        word_vectors: VectorDict,
+        sparse = False
         ) -> VectorDict:
     """
     A document vectorizer calculating the centroid
@@ -293,13 +308,17 @@ def centroid_document_vectorizer(
     """
 
     corpus_tokens, corpus_texts = handle_corpus(corpus)
-    vector_dict = VectorDict()
 
-    for tokens, text in zip(corpus_tokens, corpus_texts):
-        vector_dict[text] = np.mean([word_vectors[token] for token in tokens if token in word_vectors],
-                                    axis=0)
+    vector_matrix = np.zeros((len(corpus_texts), word_vectors.values().shape[1]))
+    if sparse:
+        vector_matrix = scipy.sparse.lil_matrix(vector_matrix)
 
-    return vector_dict
+    for row_index, document_tokens in enumerate(corpus_tokens):
+        for token in document_tokens:
+            if token in word_vectors.keys():
+                vector_matrix[row_index] += word_vectors[token] / len(document_tokens)
+
+    return VectorDict(corpus_texts, vector_matrix, sparse)
 
 
 def count_document_vectorizer(
@@ -319,14 +338,16 @@ def count_document_vectorizer(
     """
 
     corpus_tokens, corpus_texts = handle_corpus(corpus)
-    vector_dict = VectorDict()
 
     if vocabulary is None:
         vocabulary = unique_words(sum(corpus_tokens, []))
 
-    vector_dict.unique_words = vocabulary
+    count_matrix = scipy.sparse.lil_matrix((len(corpus_texts), len(vocabulary)))
 
-    for text, tokens in zip(corpus_texts, corpus_tokens):
-        vector_dict[text] = np.array([tokens.count(word) for word in vocabulary])
+    for row_index, document_tokens in enumerate(corpus_tokens):
+        doc_voc_indices = [vocabulary.index(word) for word in document_tokens if word in vocabulary]
 
-    return vector_dict
+        for col_index in doc_voc_indices:
+            count_matrix[row_index, col_index] += 1
+
+    return VectorDict(corpus_texts, count_matrix, sparse=True)

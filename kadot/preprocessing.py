@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 SUMMARIZER_WORD2VEC_CONFIGURATION = {
     'dimension': 300,
     'window': 20,
-    'iter': 5000,
+    'iter': 1000,
     'model': SKIP_GRAM_MODEL
 }
 
@@ -93,7 +93,7 @@ def summarizer(
      the summary together.
 
     :param vectorizer_config: dictionary "kwargs" giving the custom parameters
-     to word2vec_vectorizer.
+     to `word2vec_vectorizer`.
 
     :return: a summary based on excerpts from the original text.
     """
@@ -111,7 +111,6 @@ def summarizer(
     sentences_vectors = centroid_document_vectorizer(sentences_tokens, word_vectors)
 
     selected_sentences, _ = zip(*sentences_vectors.most_similar(text_vectors[0], lenght))
-    print(sentences_vectors.most_similar(text_vectors[0]))
     selected_sentences = set(selected_sentences)
 
     # Make the final summary
