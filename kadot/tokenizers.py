@@ -1,7 +1,10 @@
 from kadot.utils import SavedObject, unique_words
 import itertools
+import logging
 import re
 from typing import Callable, List, Optional, Pattern, Sequence, Union
+
+logger = logging.getLogger(__name__)
 
 LIGHT_DELIMITER_REGEX = re.compile("[\r\t\n\v\f ]+")
 DELIMITER_REGEX = re.compile("[.,!?:;()[\]{}><+\-*/\\= \"'\r\t\n\v\f@^¨`~_|]+")
@@ -159,6 +162,9 @@ def ngram_tokenizer(
 
     tokenized_text = tokenizer(text, lower=lower, exclude=exclude)
     ngram = tokenized_text.ngrams(n)
+    logger.warning("The `Tokens.rebuild()` method will not be able"
+                   " to be called from the `Tokens` object"
+                   " returned by this tokenizer (ngram_tokenizer).")
 
     return Tokens(text, [separator.join(gram) for gram in ngram], exclude=exclude)
 
