@@ -2,7 +2,6 @@ from kadot.tokenizers import corpus_tokenizer, regex_tokenizer, Tokens
 from kadot.utils import SavedObject, unique_words
 from kadot.vectorizers import count_document_vectorizer
 from typing import Callable, Dict
-from sklearn.naive_bayes import MultinomialNB
 
 
 class ScikitClassifier(SavedObject):
@@ -12,7 +11,7 @@ class ScikitClassifier(SavedObject):
 
     def __init__(self,
                  train: Dict[str, str],
-                 model=MultinomialNB(),
+                 model=None,
                  tokenizer: Callable[..., Tokens] = regex_tokenizer
                  ):
         """
@@ -20,11 +19,17 @@ class ScikitClassifier(SavedObject):
          and their labels as values.
 
         :param model: the scikit-learn classifier to use.
+         If None (default), MultinomialNB will be used.
 
         :param tokenizer: the word tokenizer to use.
         """
+        from sklearn.naive_bayes import MultinomialNB
 
-        self.model = model
+        if model is None:
+            self.model = MultinomialNB()
+        else:
+            self.model = model
+
         self.tokenizer = tokenizer
 
         train_samples, train_labels = zip(*train.items())
