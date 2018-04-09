@@ -5,9 +5,11 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import numpy as np
 import scipy.sparse, scipy.spatial
 
-CBOW_MODEL = {'sg': 0, 'min_count': 1}
+CBOW_MODEL = {'sg': 0, 'min_count': 1}  # For word2vec and fasttext
 SKIP_GRAM_MODEL = {'sg': 1, 'min_count': 1}
 
+DBOW_MODEL = {'dm': 0, 'min_count': 1}  # For doc2vec
+PVDM_MODEL = {'dm': 1, 'min_count': 1}
 
 def cosine_similarity(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """
@@ -246,14 +248,14 @@ def word2vec_vectorizer(
     corpus_tokens, _ = handle_corpus(corpus)
     vocabulary = unique_words(sum(corpus_tokens, []))
 
-    vector_matrix = np.zeros((len(vocabulary), dimension))
+    embedding_matrix = np.zeros((len(vocabulary), dimension))
     word2vec = Word2Vec(corpus_tokens, size=dimension, window=window,
                         iter=iter, **model)
 
     for row_index, word in enumerate(vocabulary):
-        vector_matrix[row_index] = word2vec.wv[word]
+        embedding_matrix[row_index] = word2vec.wv[word]
 
-    return VectorDict(vocabulary, vector_matrix)
+    return VectorDict(vocabulary, embedding_matrix)
 
 
 def fasttext_vectorizer(
@@ -281,14 +283,50 @@ def fasttext_vectorizer(
     corpus_tokens, _ = handle_corpus(corpus)
     vocabulary = unique_words(sum(corpus_tokens, []))
 
-    vector_matrix = np.zeros((len(vocabulary), dimension))
-    word2vec = FastText(corpus_tokens, size=dimension, window=window,
+    embedding_matrix = np.zeros((len(vocabulary), dimension))
+    fasttext = FastText(corpus_tokens, size=dimension, window=window,
                         iter=iter, **model)
 
     for row_index, word in enumerate(vocabulary):
-        vector_matrix[row_index] = word2vec.wv[word]
+        embedding_matrix[row_index] = fasttext.wv[word]
 
-    return VectorDict(vocabulary, vector_matrix)
+    return VectorDict(vocabulary, embedding_matrix)
+
+
+def doc2vec_vectorizer(
+        corpus: Union[Tokens, Sequence[Tokens]],
+        dimension: int,
+        window: int = 4,
+        iter: int = 1000,
+        model=DBOW_MODEL
+        ) -> VectorDict:
+    """
+    A document vectorizer using the Paragraph2Vec algorithm (require Gensim).
+
+    :param corpus: a list of Tokens objects or a Tokens object.
+
+    :param dimension: the number of dimensions of document vectors.
+
+    :param model: parameters to pass to the gensim vectorizer.
+     https://radimrehurek.com/gensim/models/doc2vec.html
+
+    :return: a VectorDict object containing the document vectors.
+    """
+
+    from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+
+    corpus_tokens, corpus_texts = handle_corpus(corpus)
+
+    embedding_matrix = np.zeros((len(corpus_texts), dimension))
+
+    tagged_corpus_tokens = [TaggedDocument(tokens, [document]) for document, tokens in zip(corpus_texts, corpus_tokens)]
+    doc2vec = Doc2Vec(tagged_corpus_tokens, size=dimension, window=window,
+                      iter=iter, **model)
+
+    for row_index, document in enumerate(corpus_texts):
+        embedding_matrix[row_index] = doc2vec.docvecs[document]
+
+    return VectorDict(corpus_texts, embedding_matrix)
 
 
 def centroid_document_vectorizer(
@@ -309,16 +347,16 @@ def centroid_document_vectorizer(
 
     corpus_tokens, corpus_texts = handle_corpus(corpus)
 
-    vector_matrix = np.zeros((len(corpus_texts), word_vectors.values().shape[1]))
+    embedding_matrix = np.zeros((len(corpus_texts), word_vectors.values().shape[1]))
     if sparse:
-        vector_matrix = scipy.sparse.lil_matrix(vector_matrix)
+        embedding_matrix = scipy.sparse.lil_matrix(embedding_matrix)
 
     for row_index, document_tokens in enumerate(corpus_tokens):
         for token in document_tokens:
             if token in word_vectors.keys():
-                vector_matrix[row_index] += word_vectors[token] / len(document_tokens)
+                embedding_matrix[row_index] += word_vectors[token] / len(document_tokens)
 
-    return VectorDict(corpus_texts, vector_matrix, sparse)
+    return VectorDict(corpus_texts, embedding_matrix, sparse)
 
 
 def count_document_vectorizer(

@@ -56,7 +56,7 @@ def extract(
     """
     Find the `best` most similar `choices` to the `query`.
 
-    :param query: a Tokens objects.
+    :param query: a Tokens object.
 
     :param choices: a list of Tokens objects.
 
