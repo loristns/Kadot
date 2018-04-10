@@ -89,19 +89,19 @@ class VectorDict(SavedObject):
 
     def values(self):
         if self.is_sparse:
-            logger.warning("Using .values() on a sparse VectorDict will return"
-                           " a Scipy lil_matrix instead of a Numpy array."
-                           " Converting a lil_matrix to an array can be memory"
-                           " intensive, consider using .g_values().")
+            logger.info("Using .values() on a sparse VectorDict will return"
+                        " a Scipy lil_matrix instead of a Numpy array."
+                        " Converting a lil_matrix to an array can be memory"
+                        " intensive, consider using .g_values().")
 
         return self.matrix
 
     def items(self):
         if self.is_sparse:
-            logger.warning("Using .items() on a sparse VectorDict will return"
-                           " a Scipy lil_matrix instead of a Numpy array as"
-                           " values. Converting a lil_matrix to an array can"
-                           " be memory intensive, consider using .g_items().")
+            logger.info("Using .items() on a sparse VectorDict will return"
+                        " a Scipy lil_matrix instead of a Numpy array as"
+                        " values. Converting a lil_matrix to an array can"
+                        " be memory intensive, consider using .g_items().")
 
         return list(zip(self.keys(), self.values()))
 
