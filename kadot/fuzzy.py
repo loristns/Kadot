@@ -1,7 +1,7 @@
 """
 Inspired by FuzzyWuzzy: https://github.com/seatgeek/fuzzywuzzy
 """
-from kadot.tokenizers import regex_tokenizer, Tokens
+from kadot.tokenizers import Tokens
 from collections import Counter
 from difflib import SequenceMatcher
 from typing import Callable, List, Optional, Sequence, Tuple, Union

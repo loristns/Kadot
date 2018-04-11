@@ -2,7 +2,7 @@
 Inspired by this article : https://stevenloria.com/tf-idf/
 """
 from kadot.preprocessing import tfidf
-from kadot.tokenizers import corpus_tokenizer, regex_tokenizer
+from kadot.tokenizers import corpus_tokenizer
 from collections import Counter
 
 
