@@ -1,0 +1,678 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>kadot package &#8212; Kadot 1.0dev documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="kadot-package">
+<h1>kadot package<a class="headerlink" href="#kadot-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kadot.bot_engine">
+<span id="kadot-bot-engine-module"></span><h2>kadot.bot_engine module<a class="headerlink" href="#module-kadot.bot_engine" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kadot.fuzzy">
+<span id="kadot-fuzzy-module"></span><h2>kadot.fuzzy module<a class="headerlink" href="#module-kadot.fuzzy" title="Permalink to this headline">¶</a></h2>
+<p>Inspired by FuzzyWuzzy: <a class="reference external" href="https://github.com/seatgeek/fuzzywuzzy">https://github.com/seatgeek/fuzzywuzzy</a></p>
+<dl class="function">
+<dt id="kadot.fuzzy.extract">
+<code class="descclassname">kadot.fuzzy.</code><code class="descname">extract</code><span class="sig-paren">(</span><em>query: kadot.tokenizers.Tokens, choices: Sequence[kadot.tokenizers.Tokens], best: Union[int, NoneType] = None, ratio_function: Callable[..., float] = &lt;function ratio&gt;</em><span class="sig-paren">)</span> &#x2192; List[Tuple[str, int]]<a class="headerlink" href="#kadot.fuzzy.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the <cite>best</cite> most similar <cite>choices</cite> to the <cite>query</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> – a Tokens object.</li>
+<li><strong>choices</strong> – a list of Tokens objects.</li>
+<li><strong>best</strong> – the most similar number of choices to return.
+If None (default), the function will return all choices.</li>
+<li><strong>ratio_function</strong> – a function calculating the similarity
+between two Tokens objects.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of tuple containing the plain text of the extracted choice
+and its similarity with the query.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.fuzzy.ratio">
+<code class="descclassname">kadot.fuzzy.</code><code class="descname">ratio</code><span class="sig-paren">(</span><em>s1: Union[str, kadot.tokenizers.Tokens], s2: Union[str, kadot.tokenizers.Tokens]</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#kadot.fuzzy.ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the similarity ratio between two (tokenized or not) strings.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ratio</span><span class="p">(</span><span class="s1">&#39;I ate the apple&#39;</span><span class="p">,</span> <span class="s1">&#39;I ate the pear&#39;</span><span class="p">)</span>
+<span class="go">0.759</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.fuzzy.token_ratio">
+<code class="descclassname">kadot.fuzzy.</code><code class="descname">token_ratio</code><span class="sig-paren">(</span><em>s1: kadot.tokenizers.Tokens</em>, <em>s2: kadot.tokenizers.Tokens</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#kadot.fuzzy.token_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the similarity ratio between two tokenized strings.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">token_ratio</span><span class="p">(</span><span class="n">regex_tokenizer</span><span class="p">(</span><span class="s1">&#39;I ate the apple&#39;</span><span class="p">),</span> <span class="n">regex_tokenizer</span><span class="p">(</span><span class="s1">&#39;the apple I ate&#39;</span><span class="p">))</span>
+<span class="go">0.5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.fuzzy.vocabulary_ratio">
+<code class="descclassname">kadot.fuzzy.</code><code class="descname">vocabulary_ratio</code><span class="sig-paren">(</span><em>s1: kadot.tokenizers.Tokens</em>, <em>s2: kadot.tokenizers.Tokens</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#kadot.fuzzy.vocabulary_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the similarity ratio of the vocabulary of two tokenized strings.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vocabulary_ratio</span><span class="p">(</span><span class="n">regex_tokenizer</span><span class="p">(</span><span class="s1">&#39;I ate the apple&#39;</span><span class="p">),</span> <span class="n">regex_tokenizer</span><span class="p">(</span><span class="s1">&#39;the apple I ate&#39;</span><span class="p">))</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kadot.models">
+<span id="kadot-models-module"></span><h2>kadot.models module<a class="headerlink" href="#module-kadot.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kadot.models.EntityRecognizer">
+<em class="property">class </em><code class="descclassname">kadot.models.</code><code class="descname">EntityRecognizer</code><span class="sig-paren">(</span><em>train: Dict[str, Tuple[str]], tokenizer: Callable[..., kadot.tokenizers.Tokens] = &lt;function regex_tokenizer&gt;, configuration={'embedding_dimension': 20, 'entity_size_range': (1, 11), 'hidden_size': 10, 'iter': 800, 'learning_rate': 0.01, 'mean_ratio': 0.75, 'min_tolerance': 0.0001}</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.models.EntityRecognizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kadot.utils.SavedObject" title="kadot.utils.SavedObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">kadot.utils.SavedObject</span></code></a></p>
+<dl class="method">
+<dt id="kadot.models.EntityRecognizer.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>text: str</em><span class="sig-paren">)</span> &#x2192; Tuple[Tuple[str], float]<a class="headerlink" href="#kadot.models.EntityRecognizer.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kadot.models.ScikitClassifier">
+<em class="property">class </em><code class="descclassname">kadot.models.</code><code class="descname">ScikitClassifier</code><span class="sig-paren">(</span><em>train: Dict[str, str], model=None, tokenizer: Callable[..., kadot.tokenizers.Tokens] = &lt;function regex_tokenizer&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.models.ScikitClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kadot.utils.SavedObject" title="kadot.utils.SavedObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">kadot.utils.SavedObject</span></code></a></p>
+<p>A text classifier using scikit-learn.</p>
+<dl class="method">
+<dt id="kadot.models.ScikitClassifier.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>text: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, float]<a class="headerlink" href="#kadot.models.ScikitClassifier.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kadot.preprocessing">
+<span id="kadot-preprocessing-module"></span><h2>kadot.preprocessing module<a class="headerlink" href="#module-kadot.preprocessing" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="kadot.preprocessing.summarizer">
+<code class="descclassname">kadot.preprocessing.</code><code class="descname">summarizer</code><span class="sig-paren">(</span><em>text: str</em>, <em>lenght: int</em>, <em>separator: str = '. '</em>, <em>vectorizer_config: dict = {'dimension': 300</em>, <em>'iter': 1000</em>, <em>'model': {'min_count': 1</em>, <em>'sg': 1}</em>, <em>'window': 20}</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#kadot.preprocessing.summarizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarize a text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – input text to summarize.</li>
+<li><strong>lenght</strong> – length (in number of sentences) of the summary.</li>
+<li><strong>separator</strong> – separator that joins the sentences of
+the summary together.</li>
+<li><strong>vectorizer_config</strong> – dictionary “kwargs” giving the custom parameters
+to <cite>word2vec_vectorizer</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a summary based on excerpts from the original text.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.preprocessing.tfidf">
+<code class="descclassname">kadot.preprocessing.</code><code class="descname">tfidf</code><span class="sig-paren">(</span><em>document: kadot.tokenizers.Tokens, corpus: Sequence[kadot.tokenizers.Tokens]</em><span class="sig-paren">)</span> &#x2192; Dict[str, float]<a class="headerlink" href="#kadot.preprocessing.tfidf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the TF-IDF score of words in a given tokenized document based
+on a given tokenized corpus.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.preprocessing.twitter_preprocess">
+<code class="descclassname">kadot.preprocessing.</code><code class="descname">twitter_preprocess</code><span class="sig-paren">(</span><em>text: str</em>, <em>no_rt: bool = True</em>, <em>no_mention: bool = False</em>, <em>no_hashtag: bool = False</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#kadot.preprocessing.twitter_preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocessing function to remove retweets, mentions and/or hashtags from
+raw tweets.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">twitter_preprocess</span><span class="p">(</span><span class="s2">&quot;RT @the_new_sky: Follow me !&quot;</span><span class="p">)</span>
+<span class="go">&#39;Follow me !&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">twitter_preprocess</span><span class="p">(</span><span class="s2">&quot;@the_new_sky please stop making ads for your #twitter account.&quot;</span><span class="p">,</span> <span class="n">no_mention</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no_hashtag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&#39; please stop making ads for your  account.&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.preprocessing.url_preprocess">
+<code class="descclassname">kadot.preprocessing.</code><code class="descname">url_preprocess</code><span class="sig-paren">(</span><em>text: str</em>, <em>exclude: Sequence[str] = ()</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#kadot.preprocessing.url_preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocessing function to remove some or all URLs from a text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – input text to preprocess.</li>
+<li><strong>exclude</strong> – a tuple or a list containing the domains to exclude,
+if empty (default) all URLs will be deleted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the text without URLs.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">url_preprocess</span><span class="p">(</span><span class="s2">&quot;Check this article : https://en.wikipedia.org/wiki/Python_(programming_language)&quot;</span><span class="p">)</span>
+<span class="go">&#39;Check this article : &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">url_preprocess</span><span class="p">(</span><span class="s2">&quot;https://www.bing.com/search?q=python or https://www.google.fr/search?q=python&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;www.bing.com&#39;</span><span class="p">))</span>
+<span class="go">&#39; or https://www.google.fr/search?q=python&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kadot.tokenizers">
+<span id="kadot-tokenizers-module"></span><h2>kadot.tokenizers module<a class="headerlink" href="#module-kadot.tokenizers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kadot.tokenizers.Tokens">
+<em class="property">class </em><code class="descclassname">kadot.tokenizers.</code><code class="descname">Tokens</code><span class="sig-paren">(</span><em>text: str, tokens: Sequence[str], delimiters: Union[Sequence[str], NoneType] = None, starts_with_token: Union[bool, NoneType] = None, exclude: Union[Sequence[str], NoneType] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.tokenizers.Tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kadot.utils.SavedObject" title="kadot.utils.SavedObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">kadot.utils.SavedObject</span></code></a></p>
+<p>An object representing a tokenized text.</p>
+<dl class="method">
+<dt id="kadot.tokenizers.Tokens.ngrams">
+<code class="descname">ngrams</code><span class="sig-paren">(</span><em>n: int</em><span class="sig-paren">)</span> &#x2192; list<a class="headerlink" href="#kadot.tokenizers.Tokens.ngrams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns n-grams of the text. Based on a code found on locallyoptimal.com</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kadot.tokenizers.Tokens.rebuild">
+<code class="descname">rebuild</code><span class="sig-paren">(</span><em>tokens: Union[Tokens, Sequence[str]]</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#kadot.tokenizers.Tokens.rebuild" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows you to reconstruct a modified raw text using
+the word delimiters of the original text.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.tokenizers.corpus_tokenizer">
+<code class="descclassname">kadot.tokenizers.</code><code class="descname">corpus_tokenizer</code><span class="sig-paren">(</span><em>corpus: List[str], lower: bool = False, exclude: Union[Sequence[str], NoneType] = None, tokenizer: Callable[..., kadot.tokenizers.Tokens] = &lt;function regex_tokenizer&gt;</em><span class="sig-paren">)</span> &#x2192; List[kadot.tokenizers.Tokens]<a class="headerlink" href="#kadot.tokenizers.corpus_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenize a whole list of documents (corpus) using the same tokenizer.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">corpus_tokenizer</span><span class="p">([</span><span class="s1">&#39;Hello bob !&#39;</span><span class="p">,</span> <span class="s1">&#39;Hi John !&#39;</span><span class="p">])</span>
+<span class="go">[Tokens([&#39;Hello&#39;, &#39;bob&#39;]), Tokens([&#39;Hi&#39;, &#39;John&#39;])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.tokenizers.ngram_tokenizer">
+<code class="descclassname">kadot.tokenizers.</code><code class="descname">ngram_tokenizer</code><span class="sig-paren">(</span><em>text: str, n: int = 2, separator: str = '-', lower: bool = False, exclude: Union[Sequence[str], NoneType] = None, tokenizer: Callable[..., kadot.tokenizers.Tokens] = &lt;function regex_tokenizer&gt;</em><span class="sig-paren">)</span> &#x2192; kadot.tokenizers.Tokens<a class="headerlink" href="#kadot.tokenizers.ngram_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A “meta” tokenizer that returns n-grams as tokens.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – the text to tokenize.</li>
+<li><strong>n</strong> – the size of the gram.</li>
+<li><strong>separator</strong> – the separator joining words together in a gram.</li>
+<li><strong>lower</strong> – if True, the text will be written in lowercase
+before it is tokenized.</li>
+<li><strong>exclude</strong> – a list of words and/or gram that should not be included
+after tokenization.</li>
+<li><strong>tokenizer</strong> – the word tokenizer to use.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a Tokens object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ngram_tokenizer</span><span class="p">(</span><span class="s2">&quot;This is another example.&quot;</span><span class="p">)</span>
+<span class="go">Tokens([&#39;This-is&#39;, &#39;is-another&#39;, &#39;another-example&#39;])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.tokenizers.regex_tokenizer">
+<code class="descclassname">kadot.tokenizers.</code><code class="descname">regex_tokenizer</code><span class="sig-paren">(</span><em>text: str, lower: bool = False, exclude: Union[Sequence[str], NoneType] = None, delimiter: Pattern[~AnyStr] = re.compile('[.,!?:;()[\\]{}&gt;&lt;+\\-*/\\= &quot;\'\r\t\n\x0b\x0c&#64;^¨`~_|]+')</em><span class="sig-paren">)</span> &#x2192; kadot.tokenizers.Tokens<a class="headerlink" href="#kadot.tokenizers.regex_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenize using regular expressions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – the text to tokenize.</li>
+<li><strong>lower</strong> – if True, the text will be written in lowercase
+before it is tokenized.</li>
+<li><strong>exclude</strong> – a list of words that should not be included
+after tokenization.</li>
+<li><strong>delimiter</strong> – the regex defining what delimits words between them.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a Tokens object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">regex_tokenizer</span><span class="p">(</span><span class="s2">&quot;Let&#39;s try this example.&quot;</span><span class="p">)</span>
+<span class="go">Tokens([&#39;Let&#39;, &#39;s&#39;, &#39;try&#39;, &#39;this&#39;, &#39;example&#39;])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.tokenizers.whitespace_tokenizer">
+<code class="descclassname">kadot.tokenizers.</code><code class="descname">whitespace_tokenizer</code><span class="sig-paren">(</span><em>text: str, lower: bool = False, exclude: Union[Sequence[str], NoneType] = None</em><span class="sig-paren">)</span> &#x2192; kadot.tokenizers.Tokens<a class="headerlink" href="#kadot.tokenizers.whitespace_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenize considering that words are separated by whitespaces characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – the text to tokenize.</li>
+<li><strong>lower</strong> – if True, the text will be written in lowercase
+before it is tokenized.</li>
+<li><strong>exclude</strong> – a list of words that should not be included
+after tokenization.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a Tokens object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">whitespace_tokenizer</span><span class="p">(</span><span class="s2">&quot;Let&#39;s try this example.&quot;</span><span class="p">)</span>
+<span class="go">Tokens([&quot;Let&#39;s&quot;, &#39;try&#39;, &#39;this&#39;, &#39;example.&#39;])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kadot.utils">
+<span id="kadot-utils-module"></span><h2>kadot.utils module<a class="headerlink" href="#module-kadot.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kadot.utils.SavedObject">
+<em class="property">class </em><code class="descclassname">kadot.utils.</code><code class="descname">SavedObject</code><a class="headerlink" href="#kadot.utils.SavedObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class that can be saved in a file.</p>
+<dl class="method">
+<dt id="kadot.utils.SavedObject.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.utils.SavedObject.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.utils.load_object">
+<code class="descclassname">kadot.utils.</code><code class="descname">load_object</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.utils.load_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kadot.utils.product">
+<code class="descclassname">kadot.utils.</code><code class="descname">product</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.utils.product" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kadot.utils.unique_words">
+<code class="descclassname">kadot.utils.</code><code class="descname">unique_words</code><span class="sig-paren">(</span><em>words</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.utils.unique_words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kadot.vectorizers">
+<span id="kadot-vectorizers-module"></span><h2>kadot.vectorizers module<a class="headerlink" href="#module-kadot.vectorizers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kadot.vectorizers.VectorDict">
+<em class="property">class </em><code class="descclassname">kadot.vectorizers.</code><code class="descname">VectorDict</code><span class="sig-paren">(</span><em>keys: list, matrix: Union[numpy.ndarray, scipy.sparse.lil.lil_matrix], sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#kadot.vectorizers.VectorDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kadot.utils.SavedObject" title="kadot.utils.SavedObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">kadot.utils.SavedObject</span></code></a></p>
+<p>An ordered dict to store vectors associated with their documents.</p>
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.analogy">
+<code class="descname">analogy</code><span class="sig-paren">(</span><em>from1: Union[str, numpy.ndarray], to1: Union[str, numpy.ndarray], from2: Union[str, numpy.ndarray], best: int = 10, exclude: Union[Sequence[str], NoneType] = None, similarity: Callable[[numpy.ndarray, numpy.ndarray], float] = &lt;function cosine_similarity&gt;</em><span class="sig-paren">)</span> &#x2192; List[Tuple[str, float]]<a class="headerlink" href="#kadot.vectorizers.VectorDict.analogy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the words that match the most closely to an analogy.
+For example: “The man is to the woman what the king is to… the queen.”</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.doesnt_match">
+<code class="descname">doesnt_match</code><span class="sig-paren">(</span><em>keys: list</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#kadot.vectorizers.VectorDict.doesnt_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search the intruder in a list of keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.g_items">
+<code class="descname">g_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kadot.vectorizers.VectorDict.g_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator behaving like the <cite>item</cite> method but converting
+sparse matrices into numpy array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.g_values">
+<code class="descname">g_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kadot.vectorizers.VectorDict.g_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator behaving like the <cite>value</cite> method but converting
+sparse matrices into numpy array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kadot.vectorizers.VectorDict.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kadot.vectorizers.VectorDict.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.most_similar">
+<code class="descname">most_similar</code><span class="sig-paren">(</span><em>coordinates: Union[str, numpy.ndarray], best: Union[int, NoneType] = 10, exclude: Union[Sequence[str], NoneType] = None, similarity: Callable[[numpy.ndarray, numpy.ndarray], float] = &lt;function cosine_similarity&gt;</em><span class="sig-paren">)</span> &#x2192; List[Tuple[str, float]]<a class="headerlink" href="#kadot.vectorizers.VectorDict.most_similar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the <cite>best</cite> most similar words to <a href="#id1"><span class="problematic" id="id2">`</span></a>coordinates’.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>coordinates</strong> – a vector (numpy array) or a key of a vector
+in the dictionary.</li>
+<li><strong>exclude</strong> – a list of words to exclude from the result.</li>
+<li><strong>similarity</strong> – a function calculating the similarity between two vectors.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of tuples containing the most similar words
+and their cosine similarities.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kadot.vectorizers.VectorDict.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kadot.vectorizers.VectorDict.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.centroid_document_vectorizer">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">centroid_document_vectorizer</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]], word_vectors: kadot.vectorizers.VectorDict, sparse=False</em><span class="sig-paren">)</span> &#x2192; kadot.vectorizers.VectorDict<a class="headerlink" href="#kadot.vectorizers.centroid_document_vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A document vectorizer calculating the centroid
+of the vectors of the words it contains.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corpus</strong> – a list of Tokens objects or a Tokens object.</li>
+<li><strong>word_vectors</strong> – a VectorDict object containing the word vectors.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a VectorDict object containing the document vectors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.cosine_similarity">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">cosine_similarity</code><span class="sig-paren">(</span><em>vector1: numpy.ndarray</em>, <em>vector2: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#kadot.vectorizers.cosine_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the cosine similarity of two vectors.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.count_document_vectorizer">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">count_document_vectorizer</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]], vocabulary: Union[Sequence[str], NoneType] = None</em><span class="sig-paren">)</span> &#x2192; kadot.vectorizers.VectorDict<a class="headerlink" href="#kadot.vectorizers.count_document_vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple “bag-of-words” document vectorizer that simply counts the number
+of occurrences of each word in each document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corpus</strong> – a list of Tokens objects or a Tokens object.</li>
+<li><strong>vocabulary</strong> – the vocabulary used for vectorization in the form of a
+word list, or if None (default), the vocabulary would be extracted from the corpus.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a VectorDict object containing the document vectors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.doc2vec_vectorizer">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">doc2vec_vectorizer</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]], dimension: int, window: int = 4, iter: int = 1000, model={'dm': 0, 'min_count': 1}</em><span class="sig-paren">)</span> &#x2192; kadot.vectorizers.VectorDict<a class="headerlink" href="#kadot.vectorizers.doc2vec_vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A document vectorizer using the Paragraph2Vec algorithm (require Gensim).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corpus</strong> – a list of Tokens objects or a Tokens object.</li>
+<li><strong>dimension</strong> – the number of dimensions of document vectors.</li>
+<li><strong>model</strong> – parameters to pass to the gensim vectorizer.
+<a class="reference external" href="https://radimrehurek.com/gensim/models/doc2vec.html">https://radimrehurek.com/gensim/models/doc2vec.html</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a VectorDict object containing the document vectors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.fasttext_vectorizer">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">fasttext_vectorizer</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]], dimension: int, window: int = 4, iter: int = 1000, model={'min_count': 1, 'sg': 0}</em><span class="sig-paren">)</span> &#x2192; kadot.vectorizers.VectorDict<a class="headerlink" href="#kadot.vectorizers.fasttext_vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A word vectorizer using the FastText algorithm (require Gensim).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corpus</strong> – a list of Tokens objects or a Tokens object.</li>
+<li><strong>dimension</strong> – the number of dimensions of word vectors.</li>
+<li><strong>model</strong> – parameters to pass to the gensim vectorizer.
+<a class="reference external" href="https://radimrehurek.com/gensim/models/fasttext.html">https://radimrehurek.com/gensim/models/fasttext.html</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a VectorDict object containing the word vectors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.handle_corpus">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">handle_corpus</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]]</em><span class="sig-paren">)</span> &#x2192; Tuple[List[List[str]], List[str]]<a class="headerlink" href="#kadot.vectorizers.handle_corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to manage the <cite>corpus</cite> argument of a vectorizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>corpus</strong> – a Tokens object or an iterable object containing
+Tokens objects.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a tuple containing the list of tokenized texts (in a list form)
+and the list of raw texts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.word2vec_vectorizer">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">word2vec_vectorizer</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]], dimension: int, window: int = 4, iter: int = 1000, model={'min_count': 1, 'sg': 0}</em><span class="sig-paren">)</span> &#x2192; kadot.vectorizers.VectorDict<a class="headerlink" href="#kadot.vectorizers.word2vec_vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A word vectorizer using the word2vec algorithm (require Gensim).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corpus</strong> – a list of Tokens objects or a Tokens object.</li>
+<li><strong>dimension</strong> – the number of dimensions of word vectors.</li>
+<li><strong>model</strong> – parameters to pass to the gensim vectorizer.
+<a class="reference external" href="https://radimrehurek.com/gensim/models/word2vec.html">https://radimrehurek.com/gensim/models/word2vec.html</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a VectorDict object containing the word vectors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kadot.vectorizers.word_vectorizer">
+<code class="descclassname">kadot.vectorizers.</code><code class="descname">word_vectorizer</code><span class="sig-paren">(</span><em>corpus: Union[kadot.tokenizers.Tokens, Sequence[kadot.tokenizers.Tokens]], window: int = 4, vocabulary: Union[Sequence[str], NoneType] = None</em><span class="sig-paren">)</span> &#x2192; kadot.vectorizers.VectorDict<a class="headerlink" href="#kadot.vectorizers.word_vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A distributional word vectorizer constructing a co-occurrence matrix
+and applying a dimension reduction algorithm on it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corpus</strong> – a list of Tokens objects or a Tokens object.</li>
+<li><strong>window</strong> – the size of a word context window side.</li>
+<li><strong>vocabulary</strong> – the vocabulary used for vectorization in the form of a
+word list, or if None (default), the vocabulary would be extracted from the corpus.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a VectorDict object containing the word vectors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kadot">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kadot" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Natural language processing using unsupervised vectors representation.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=the-new-sky&repo=Kadot&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">kadot package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-kadot.bot_engine">kadot.bot_engine module</a></li>
+<li><a class="reference internal" href="#module-kadot.fuzzy">kadot.fuzzy module</a></li>
+<li><a class="reference internal" href="#module-kadot.models">kadot.models module</a></li>
+<li><a class="reference internal" href="#module-kadot.preprocessing">kadot.preprocessing module</a></li>
+<li><a class="reference internal" href="#module-kadot.tokenizers">kadot.tokenizers module</a></li>
+<li><a class="reference internal" href="#module-kadot.utils">kadot.utils module</a></li>
+<li><a class="reference internal" href="#module-kadot.vectorizers">kadot.vectorizers module</a></li>
+<li><a class="reference internal" href="#module-kadot">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, the_new_sky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/source/kadot.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/the-new-sky/Kadot" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

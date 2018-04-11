@@ -1,0 +1,142 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Kadot : Unsupervised natural language processing. &#8212; Kadot 1.0dev documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="kadot-unsupervised-natural-language-processing">
+<h1>Kadot : Unsupervised natural language processing.<a class="headerlink" href="#kadot-unsupervised-natural-language-processing" title="Permalink to this headline">¶</a></h1>
+<p><em>⚠️ You are reading the documentation of Kadot 1.0 which is under development.</em></p>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+<p><strong>Kadot</strong> is an open-source library to easily process text documents. It relies on vector representations of documents or words in order to solve NLP tasks such as <strong>summarization</strong>, <strong>spellchecking</strong> or <strong>classification</strong>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># How to get n-grams using kadot.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">kadot.tokenizers</span> <span class="k">import</span> <span class="n">regex_tokenizer</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hello_tokens</span> <span class="o">=</span> <span class="n">regex_tokenizer</span><span class="p">(</span><span class="s2">&quot;Kadot just lets you process a text easily.&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hello_tokens</span><span class="o">.</span><span class="n">ngrams</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="p">[(</span><span class="s1">&#39;Kadot&#39;</span><span class="p">,</span> <span class="s1">&#39;just&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;just&#39;</span><span class="p">,</span> <span class="s1">&#39;lets&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;lets&#39;</span><span class="p">,</span> <span class="s1">&#39;you&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;you&#39;</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;process&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;easily&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<div class="section" id="what-s-in-1-0">
+<h2>What’s 🆕 in 1.0 ?<a class="headerlink" href="#what-s-in-1-0" title="Permalink to this headline">¶</a></h2>
+<p><em>⚠️ All these new features may not yet be available on Github.</em></p>
+<ul class="simple">
+<li><strong>Vectorizers</strong> : We are now offering Word2Vec, the state-of-the-art Fasttext and Doc2Vec algorithms using <a class="reference external" href="https://radimrehurek.com/gensim/">Gensim</a> ‘s powerful backend.</li>
+<li><strong>Performances</strong> : Using a much more efficient algorithm, the new word vectorizer is up to 95% faster and sparse vectors now take up to 94% less memory.</li>
+<li><strong>Models</strong> : Kadot now includes an <em>automatic text summarizer</em> and an <em>entity labeler</em> which can be useful in many projects.</li>
+<li><strong>Bot Engine</strong> ?</li>
+<li><strong>Dependencies</strong> 😞 : In order to guarantee good performance without reinventing the wheel, we are adding <a class="reference external" href="https://radimrehurek.com/gensim/">Gensim</a> and <a class="reference external" href="http://pytorch.org/">Pytorch</a> to our list of dependencies. Although installed by default, these libraries (with scikit-learn) will be optional and only Numpy and Scipy are strictly required to use Kadot.</li>
+</ul>
+</div>
+<div class="section" id="license">
+<h2>⚖️ License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Kadot is under <a class="reference external" href="https://github.com/the-new-sky/Kadot/blob/master/LICENSE.md">MIT license</a> .</p>
+<p><em>I am not a native English speaker, if you see any language mistakes in the documentation or in the code, please open an issue on Github.</em></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="#">
+    <img class="logo" src="_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Natural language processing using unsupervised vectors representation.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=the-new-sky&repo=Kadot&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Kadot : Unsupervised natural language processing.</a><ul>
+<li><a class="reference internal" href="#what-s-in-1-0">What’s 🆕 in 1.0 ?</a></li>
+<li><a class="reference internal" href="#license">⚖️ License</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, the_new_sky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/the-new-sky/Kadot" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
