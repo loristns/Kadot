@@ -1,8 +1,12 @@
+from kadot.preprocessing import tfidf
 from kadot.tokenizers import corpus_tokenizer, regex_tokenizer, Tokens
 from kadot.utils import SavedObject, unique_words
-from kadot.vectorizers import count_document_vectorizer
+from kadot.vectorizers import centroid_document_vectorizer,\
+    cosine_similarity, count_document_vectorizer, SKIP_GRAM_MODEL,\
+    word2vec_vectorizer
 import logging
-from typing import Callable, Dict, Tuple
+import re
+from typing import Callable, Dict, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +18,13 @@ DEFAULT_SCAT_CONFIGURATION = {
     'mean_ratio': 0.75,
     'min_tolerance': 1e-04,
     'entity_size_range': (1, 10+1),
+}
+
+DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
+    'dimension': 100,
+    'window': 10,
+    'iter': 1000,
+    'model': SKIP_GRAM_MODEL
 }
 
 
@@ -192,3 +203,86 @@ class EntityRecognizer(SavedObject):
                 vector.append(self.vocabulary.index('<unknown>'))
 
         return LongTensor(vector)
+
+
+def summarizer(
+        text: str,
+        unrelated_corpus: Sequence[str],
+        length: int,
+        separator: str = '.',
+        topic_threshold: float = 0.3,
+        similarity_threshold: float = 0.95,
+        vectorizer_config: dict = DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION
+        ) -> str:
+    """
+    Summarize a text using "Centroid-based Text Summarization through
+    Compositionality of Word Embeddings" by Gaetano Rossiello et al.
+
+    :param text: input text to summarize.
+
+    :param unrelated_corpus: a corpus of several and preferably unrelated
+     documents with the text to be summarized. Used to determine tf-idf scores
+     for each word and to improve the quality of word embeddings.
+
+    :param length: length (in number of sentences) of the summary.
+
+    :param separator: a string that joins the sentences of
+     the summary together.
+
+    :param topic_threshold: the minimum TF-IDF score so that a word is
+     not identified as a stopword.
+
+    :param similarity_threshold: the maximum cosine similarity value defining
+     the redundancy of the selected sentences in the summary.
+
+    :param vectorizer_config: dictionary ("kwargs") giving the custom
+     parameters to `word2vec_vectorizer`.
+
+    :return: a summary based on excerpts from the original text.
+    """
+
+    text_tokens = regex_tokenizer(text, lower=True)
+    sentences = regex_tokenizer(text, delimiter=re.compile("[.!?;\n]+"))
+
+    unrelated_corpus_tokens = corpus_tokenizer(unrelated_corpus, lower=True)
+    sentences_tokens = corpus_tokenizer(sentences, lower=True)
+    # Removes empty sentences.
+    sentences_tokens = [sentence for sentence in sentences_tokens if len(sentence.tokens)]
+
+    word_vectors = word2vec_vectorizer(text_tokens, **vectorizer_config)
+
+    tfidf_scores = tfidf(text_tokens, unrelated_corpus_tokens)
+    tokens_to_exclude = [token for token, score in tfidf_scores.items() if score < topic_threshold]
+
+    # Log TF-IDF stats to help setting a better threshold.
+    logger.info("TF-IDF - Min : {} - Max : {}"
+                .format(
+                    min(tfidf_scores.values()),
+                    max(tfidf_scores.values())
+                ))
+
+    filtered_text_tokens = regex_tokenizer(text, lower=True, exclude=tokens_to_exclude)
+
+    text_vector = centroid_document_vectorizer(filtered_text_tokens, word_vectors)[0]
+    sentences_vectors = centroid_document_vectorizer(sentences_tokens, word_vectors)
+
+    selected_sentences, _ = zip(*sentences_vectors.most_similar(text_vector, length))
+    selected_sentences = set(selected_sentences)
+
+    # Make the final summary
+    summary = ""
+    added_sentences = []
+
+    for sentence in sentences:
+        if sentence.lower() in selected_sentences:
+            selected_sentences.remove(sentence.lower())
+
+            is_invalid = False
+            for As in added_sentences:
+                is_invalid = is_invalid or cosine_similarity(sentences_vectors[As], sentences_vectors[sentence.lower()]) > similarity_threshold
+
+            if not is_invalid:
+                summary += sentence + separator
+                added_sentences.append(sentence.lower())
+
+    return summary
