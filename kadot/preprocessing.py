@@ -1,18 +1,10 @@
-from kadot.tokenizers import corpus_tokenizer, LIGHT_DELIMITER_REGEX,\
+from kadot.tokenizers import LIGHT_DELIMITER_REGEX,\
     regex_tokenizer, Tokens
-from kadot.vectorizers import centroid_document_vectorizer, handle_corpus,\
-    SKIP_GRAM_MODEL, word2vec_vectorizer
+from kadot.vectorizers import handle_corpus
 import math
 import re
 from typing import Dict, Sequence
 from urllib.parse import urlparse
-
-SUMMARIZER_WORD2VEC_CONFIGURATION = {
-    'dimension': 300,
-    'window': 20,
-    'iter': 1000,
-    'model': SKIP_GRAM_MODEL
-}
 
 
 def twitter_preprocess(
