@@ -97,7 +97,6 @@ class EntityRecognizer(SavedObject):
           - `entity_size_range`
         """
         import torch
-        from torch.autograd import Variable
         from torch import nn, optim
 
         # Initialize some variables
@@ -122,10 +121,7 @@ class EntityRecognizer(SavedObject):
                 self.decoder = nn.Linear(hidden_size, 2)
 
             def forward(self, inputs):
-                hc = (
-                    Variable(torch.ones(1, 1, 10)),
-                    Variable(torch.ones(1, 1, 10))
-                )
+                hc = (torch.ones(1, 1, 10), torch.ones(1, 1, 10))
 
                 outputs = self.embeddings(inputs)
                 outputs, _ = self.encoder(outputs, hc)
@@ -151,8 +147,8 @@ class EntityRecognizer(SavedObject):
             for sentence, goal in zip(train_tokens, train_labels):
 
                 sentence = sentence.tokens
-                x = Variable(self._tokens_to_indices(sentence)).view(1, len(sentence))
-                y = Variable(torch.LongTensor([1 if word in goal else 0 for word in sentence]))
+                x = self._tokens_to_indices(sentence).view(1, len(sentence))
+                y = torch.tensor([1 if word in goal else 0 for word in sentence])
 
                 self.model.zero_grad()
                 prediction = self.model(x)[0]
@@ -163,18 +159,17 @@ class EntityRecognizer(SavedObject):
                 optimizer.step()
 
             if epoch % round(self.configuration['iter'] / 10) == 0:
-                mean_loss = torch.FloatTensor(epoch_losses).mean()
+                mean_loss = torch.tensor(epoch_losses).mean()
                 logger.info("Epoch {} - Loss : {}".format(epoch, float(mean_loss)))
 
         logger.info("Model training finished.")
 
     def predict(self, text: str) -> Tuple[Tuple[str], float]:
-        from torch.autograd import Variable
         from torch.nn import functional as F
 
         text = self.tokenizer(text)
 
-        x = Variable(self._tokens_to_indices(text.tokens)).view(1, len(text.tokens))
+        x = self._tokens_to_indices(text.tokens).view(1, len(text.tokens))
         prediction = F.softmax(self.model(x), dim=2)[0, :, 1].data
 
         # Apply a special correction
@@ -193,7 +188,7 @@ class EntityRecognizer(SavedObject):
         return best_gram[0], sum(best_gram[1])
 
     def _tokens_to_indices(self, tokens):
-        from torch import LongTensor
+        import torch
 
         vector = []
         for token in tokens:
@@ -202,7 +197,7 @@ class EntityRecognizer(SavedObject):
             else:
                 vector.append(self.vocabulary.index('<unknown>'))
 
-        return LongTensor(vector)
+        return torch.tensor(vector)
 
 
 def summarizer(

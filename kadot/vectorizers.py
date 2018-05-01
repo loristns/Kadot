@@ -349,8 +349,8 @@ def doc2vec_vectorizer(
     tagged_corpus_tokens = [TaggedDocument(tokens, [document]) for document, tokens in zip(corpus_texts, corpus_tokens)]
 
     logger.info("Starting Gensim's vectorizer.")
-    doc2vec = Doc2Vec(tagged_corpus_tokens, size=dimension, window=window,
-                      iter=iter, **model)
+    doc2vec = Doc2Vec(tagged_corpus_tokens, vector_size=dimension, window=window,
+                      epochs=iter, **model)
     logger.info("Gensim vectorization finished.")
 
     for row_index, document in enumerate(corpus_texts):
