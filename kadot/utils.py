@@ -1,15 +1,9 @@
-from functools import reduce
-from operator import mul
 import pickle
 
 
 def unique_words(words):
     # TODO: add list of list/ list of Tokens objects gestion
     return sorted(set(words))
-
-
-def product(x):
-    return reduce(mul, x)
 
 
 class SavedObject(object):
