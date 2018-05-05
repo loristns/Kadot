@@ -2,7 +2,7 @@ from kadot.tokenizers import Tokens
 from kadot.utils import SavedObject, unique_words
 from collections import Counter
 import logging
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, IO, List, Optional, Sequence, Tuple, Union
 import numpy as np
 import scipy.sparse, scipy.spatial
 
@@ -128,6 +128,21 @@ class VectorDict(SavedObject):
                 yield key, value.toarray()
             else:
                 yield key, value
+
+    @staticmethod
+    def load_glove(file: IO) -> 'VectorDict':
+        """
+        Initializes a VectorDict from a text file in the Glove format.
+        """
+
+        vocabulary = []
+        matrix = []
+
+        for line in file:
+            vocabulary.append(line.split()[0])
+            matrix.append(np.array([float(val) for val in line.split()[1:]]))
+
+        return VectorDict(vocabulary, np.vstack(matrix))
 
     def most_similar(self,
                      coordinates: Union[str, np.ndarray],
