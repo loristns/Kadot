@@ -38,6 +38,9 @@ class Tokens(SavedObject):
     def __iter__(self):
         return self.tokens.__iter__()
 
+    def __len__(self):
+        return self.tokens.__len__()
+
     def rebuild(self, tokens: Union['Tokens', Sequence[str]]) -> str:
         """
         Allows you to reconstruct a modified raw text using

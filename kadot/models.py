@@ -4,6 +4,7 @@ from kadot.utils import SavedObject, unique_words
 from kadot.vectorizers import centroid_document_vectorizer,\
     cosine_similarity, count_document_vectorizer, SKIP_GRAM_MODEL,\
     VectorDict, word2vec_vectorizer
+from collections import Counter
 import logging
 import re
 from typing import Callable, Dict, Optional, Sequence, Tuple
@@ -109,24 +110,28 @@ class EntityRecognizer(SavedObject):
 
         # Define the network
         class SCatNetwork(nn.Module):
-            def __init__(self, vocabulary_size, embedding_dimension, hidden_size):
+            def __init__(self,
+                         vocabulary_size,
+                         embedding_dimension,
+                         hidden_size
+                         ):
                 super(SCatNetwork, self).__init__()
+                self.hidden_size = hidden_size
 
                 self.embeddings = nn.Embedding(vocabulary_size, embedding_dimension)
                 self.encoder = nn.LSTM(  # a LSTM layer to encode features
                     embedding_dimension,
-                    hidden_size,
+                    self.hidden_size,
                     batch_first=True,
                 )
-                self.decoder = nn.Linear(hidden_size, 2)
+                self.decoder = nn.Linear(self.hidden_size, 2)
 
             def forward(self, inputs):
-                hc = torch.ones(1, 1, 10), torch.ones(1, 1, 10)
-
                 outputs = self.embeddings(inputs)
-                outputs, _ = self.encoder(outputs, hc)
+                outputs, _ = self.encoder(outputs)
                 outputs = self.decoder(outputs)
-                return outputs
+
+                return outputs[0]
 
         # Training
         self.model = SCatNetwork(
@@ -138,23 +143,26 @@ class EntityRecognizer(SavedObject):
             self.model.parameters(),
             lr=self.configuration['learning_rate']
         )
-        criterion = nn.CrossEntropyLoss()
+        loss_fn = nn.CrossEntropyLoss()
 
         logger.info("Starting model training.")
         for epoch in range(self.configuration['iter']):
             epoch_losses = []
 
             for sentence, goal in zip(train_tokens, train_labels):
-
-                sentence = sentence.tokens
-                x = self._tokens_to_indices(sentence).view(1, len(sentence))
-                y = torch.tensor([1 if word in goal else 0 for word in sentence])
+                x = torch.tensor(
+                    self._tokens_to_indices(sentence)
+                ).view(1, len(sentence))
+                y = torch.tensor(
+                    [1 if word in goal else 0 for word in sentence]
+                )
 
                 self.model.zero_grad()
-                prediction = self.model(x)[0]
+                y_pred = self.model(x)
 
-                loss = criterion(prediction, y)
+                loss = loss_fn(y_pred, y)
                 epoch_losses.append(float(loss))
+
                 loss.backward()
                 optimizer.step()
 
@@ -165,31 +173,33 @@ class EntityRecognizer(SavedObject):
         logger.info("Model training finished.")
 
     def predict(self, text: str) -> Tuple[Tuple[str], float]:
+        import torch
         from torch.nn import functional as F
 
         text = self.tokenizer(text)
 
-        x = self._tokens_to_indices(text.tokens).view(1, len(text.tokens))
-        prediction = F.softmax(self.model(x), dim=2)[0, :, 1].data
+        x = torch.tensor(
+            self._tokens_to_indices(text.tokens)
+        ).view(1, len(text.tokens))
+        prediction = F.softmax(self.model(x), dim=1)
 
         # Apply a special correction
         prediction -= self.configuration['min_tolerance']
         prediction -= self.configuration['mean_ratio'] * prediction.mean()
         prediction /= prediction.std()
 
-        # TODO: refactor to something more readable.
-        tokens_with_scores = list(zip(text.tokens, prediction.tolist()))
-        grams_with_scores = sum([list(zip(*[tokens_with_scores[i:] for i in range(n)])) for n in range(*self.configuration['entity_size_range'])], [])
-        grams_with_scores.append([('', 0)])
+        tokens_with_scores = dict(zip(text.tokens, prediction))
+        grams_with_scores = [(('',), 0)]
 
-        summed_gram_scores = [sum(list(zip(*gram))[1]) for gram in grams_with_scores]
-        best_gram = list(zip(*grams_with_scores[summed_gram_scores.index(max(summed_gram_scores))]))
+        for n in range(*self.configuration['entity_size_range']):
+            for gram in text.ngrams(n):
+                grams_with_scores.append(
+                    (gram, sum([float(tokens_with_scores[word][1]) for word in gram]))
+                )
 
-        return best_gram[0], sum(best_gram[1])
+        return Counter(dict(grams_with_scores)).most_common(1)[0]
 
     def _tokens_to_indices(self, tokens):
-        import torch
-
         vector = []
         for token in tokens:
             if token in self.vocabulary:
@@ -197,7 +207,7 @@ class EntityRecognizer(SavedObject):
             else:
                 vector.append(self.vocabulary.index('<unknown>'))
 
-        return torch.tensor(vector)
+        return vector
 
 
 def summarizer(
