@@ -3,10 +3,10 @@ from kadot.tokenizers import corpus_tokenizer, regex_tokenizer, Tokens
 from kadot.utils import SavedObject, unique_words
 from kadot.vectorizers import centroid_document_vectorizer,\
     cosine_similarity, count_document_vectorizer, SKIP_GRAM_MODEL,\
-    word2vec_vectorizer
+    VectorDict, word2vec_vectorizer
 import logging
 import re
-from typing import Callable, Dict, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class ScikitClassifier(SavedObject):
         message_tokens = self.tokenizer(text)
         message_vector = count_document_vectorizer(message_tokens, self.vocabulary)
 
-        prediction = self.model.predict_proba(message_vector[0])[0]
+        prediction = self.model.predict_proba(message_vector[0].reshape(1, -1))[0]
 
         return dict(zip(self.model.classes_, prediction))
 
@@ -121,7 +121,7 @@ class EntityRecognizer(SavedObject):
                 self.decoder = nn.Linear(hidden_size, 2)
 
             def forward(self, inputs):
-                hc = (torch.ones(1, 1, 10), torch.ones(1, 1, 10))
+                hc = torch.ones(1, 1, 10), torch.ones(1, 1, 10)
 
                 outputs = self.embeddings(inputs)
                 outputs, _ = self.encoder(outputs, hc)
@@ -207,7 +207,8 @@ def summarizer(
         separator: str = '.',
         topic_threshold: float = 0.3,
         similarity_threshold: float = 0.95,
-        vectorizer_config: dict = DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION
+        vectorizer_config: dict = DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION,
+        word_vectors: Optional[VectorDict] = None
         ) -> str:
     """
     Summarize a text using "Centroid-based Text Summarization through
@@ -233,6 +234,9 @@ def summarizer(
     :param vectorizer_config: dictionary ("kwargs") giving the custom
      parameters to `word2vec_vectorizer`.
 
+    :param word_vectors: If provided, the VectorDict will be used as
+     word vectors.
+
     :return: a summary based on excerpts from the original text.
     """
 
@@ -244,7 +248,8 @@ def summarizer(
     # Removes empty sentences.
     sentences_tokens = [sentence for sentence in sentences_tokens if len(sentence.tokens)]
 
-    word_vectors = word2vec_vectorizer(text_tokens, **vectorizer_config)
+    if word_vectors is None:
+        word_vectors = word2vec_vectorizer(text_tokens, **vectorizer_config)
 
     tfidf_scores = tfidf(text_tokens, unrelated_corpus_tokens)
     tokens_to_exclude = [token for token, score in tfidf_scores.items() if score < topic_threshold]
