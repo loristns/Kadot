@@ -11,7 +11,7 @@ from typing import Callable, Dict, Optional, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SCAT_CONFIGURATION = {
+DEFAULT_WALNUT_CONFIGURATION = {
     'embedding_dimension': 20,
     'hidden_size': 10,
     'iter': 800,
@@ -27,6 +27,32 @@ DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
     'iter': 1000,
     'model': SKIP_GRAM_MODEL
 }
+
+
+class _WalnutNetwork(nn.Module):
+    def __init__(self,
+                 vocabulary_size,
+                 embedding_dimension,
+                 hidden_size,
+                 n_classes
+                 ):
+        super(_WalnutNetwork, self).__init__()
+        self.hidden_size = hidden_size
+
+        self.embeddings = nn.Embedding(vocabulary_size, embedding_dimension)
+        self.encoder = nn.LSTM(  # a LSTM layer to encode features
+            embedding_dimension,
+            self.hidden_size,
+            batch_first=True,
+        )
+        self.decoder = nn.Linear(self.hidden_size, n_classes)
+
+    def forward(self, inputs):
+        outputs = self.embeddings(inputs)
+        outputs, _ = self.encoder(outputs)
+        outputs = self.decoder(outputs)
+
+        return outputs[0]
 
 
 class ScikitClassifier(SavedObject):
@@ -79,7 +105,7 @@ class EntityRecognizer(SavedObject):
     def __init__(self,
                  train: Dict[str, Tuple[str]],
                  tokenizer: Callable[..., Tokens] = regex_tokenizer,
-                 configuration=DEFAULT_SCAT_CONFIGURATION
+                 configuration=DEFAULT_WALNUT_CONFIGURATION
                  ):
         """
         :param train: a dictionary that contains training samples as keys
@@ -108,36 +134,12 @@ class EntityRecognizer(SavedObject):
         train_tokens = corpus_tokenizer(train_samples, tokenizer=self.tokenizer)
         self.vocabulary = unique_words(sum([t.tokens for t in train_tokens], []) + ['<unknown>'])
 
-        # Define the network
-        class SCatNetwork(nn.Module):
-            def __init__(self,
-                         vocabulary_size,
-                         embedding_dimension,
-                         hidden_size
-                         ):
-                super(SCatNetwork, self).__init__()
-                self.hidden_size = hidden_size
-
-                self.embeddings = nn.Embedding(vocabulary_size, embedding_dimension)
-                self.encoder = nn.LSTM(  # a LSTM layer to encode features
-                    embedding_dimension,
-                    self.hidden_size,
-                    batch_first=True,
-                )
-                self.decoder = nn.Linear(self.hidden_size, 2)
-
-            def forward(self, inputs):
-                outputs = self.embeddings(inputs)
-                outputs, _ = self.encoder(outputs)
-                outputs = self.decoder(outputs)
-
-                return outputs[0]
-
         # Training
-        self.model = SCatNetwork(
+        self.model = _WalnutNetwork(
             len(self.vocabulary),
             self.configuration['embedding_dimension'],
-            self.configuration['hidden_size']
+            self.configuration['hidden_size'],
+            2
         )
         optimizer = optim.Adam(
             self.model.parameters(),
