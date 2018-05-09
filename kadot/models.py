@@ -8,6 +8,9 @@ from collections import Counter
 import logging
 import re
 from typing import Callable, Dict, Optional, Sequence, Tuple
+import torch
+from torch import nn, optim
+from torch.nn import functional as F
 
 logger = logging.getLogger(__name__)
 
@@ -123,9 +126,6 @@ class EntityRecognizer(SavedObject):
           - `min_tolerance`
           - `entity_size_range`
         """
-        import torch
-        from torch import nn, optim
-
         # Initialize some variables
         self.configuration = configuration
         self.tokenizer = tokenizer
@@ -175,9 +175,6 @@ class EntityRecognizer(SavedObject):
         logger.info("Model training finished.")
 
     def predict(self, text: str) -> Tuple[Tuple[str], float]:
-        import torch
-        from torch.nn import functional as F
-
         text = self.tokenizer(text)
 
         x = torch.tensor(
