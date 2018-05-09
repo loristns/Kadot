@@ -8,9 +8,6 @@ from collections import Counter
 import logging
 import re
 from typing import Callable, Dict, Optional, Sequence, Tuple
-import torch
-from torch import nn, optim
-from torch.nn import functional as F
 
 logger = logging.getLogger(__name__)
 
@@ -30,32 +27,6 @@ DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
     'iter': 1000,
     'model': SKIP_GRAM_MODEL
 }
-
-
-class _WalnutNetwork(nn.Module):
-    def __init__(self,
-                 vocabulary_size,
-                 embedding_dimension,
-                 hidden_size,
-                 n_classes
-                 ):
-        super(_WalnutNetwork, self).__init__()
-        self.hidden_size = hidden_size
-
-        self.embeddings = nn.Embedding(vocabulary_size, embedding_dimension)
-        self.encoder = nn.LSTM(  # a LSTM layer to encode features
-            embedding_dimension,
-            self.hidden_size,
-            batch_first=True,
-        )
-        self.decoder = nn.Linear(self.hidden_size, n_classes)
-
-    def forward(self, inputs):
-        outputs = self.embeddings(inputs)
-        outputs, _ = self.encoder(outputs)
-        outputs = self.decoder(outputs)
-
-        return outputs[0]
 
 
 class ScikitClassifier(SavedObject):
@@ -126,6 +97,35 @@ class EntityRecognizer(SavedObject):
           - `min_tolerance`
           - `entity_size_range`
         """
+        import torch
+        from torch import nn, optim
+
+        class _WalnutNetwork(nn.Module):
+
+            def __init__(self,
+                         vocabulary_size,
+                         embedding_dimension,
+                         hidden_size
+                         ):
+                super(_WalnutNetwork, self).__init__()
+                self.hidden_size = hidden_size
+
+                self.embeddings = nn.Embedding(vocabulary_size,
+                                               embedding_dimension)
+                self.encoder = nn.LSTM(  # a LSTM layer to encode features
+                    embedding_dimension,
+                    self.hidden_size,
+                    batch_first=True,
+                )
+                self.decoder = nn.Linear(self.hidden_size, 2)
+
+            def forward(self, inputs):
+                outputs = self.embeddings(inputs)
+                outputs, _ = self.encoder(outputs)
+                outputs = self.decoder(outputs)
+
+                return outputs[0]
+
         # Initialize some variables
         self.configuration = configuration
         self.tokenizer = tokenizer
@@ -138,8 +138,7 @@ class EntityRecognizer(SavedObject):
         self.model = _WalnutNetwork(
             len(self.vocabulary),
             self.configuration['embedding_dimension'],
-            self.configuration['hidden_size'],
-            2
+            self.configuration['hidden_size']
         )
         optimizer = optim.Adam(
             self.model.parameters(),
@@ -175,6 +174,9 @@ class EntityRecognizer(SavedObject):
         logger.info("Model training finished.")
 
     def predict(self, text: str) -> Tuple[Tuple[str], float]:
+        import torch
+        from torch.nn import functional as F
+
         text = self.tokenizer(text)
 
         x = torch.tensor(
