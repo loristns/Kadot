@@ -29,49 +29,99 @@ DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
 }
 
 
-class ScikitClassifier(SavedObject):
-    """
-    A text classifier using scikit-learn.
-    """
+class TextClassifier(SavedObject):
 
     def __init__(self,
                  train: Dict[str, str],
-                 model=None,
-                 tokenizer: Callable[..., Tokens] = regex_tokenizer
+                 iter: int = 100,
+                 learning_rate: float = 0.1,
+                 tokenizer: Callable[..., Tokens] = regex_tokenizer,
+                 vectorizer_config: dict = DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION,
+                 word_vectors: Optional[VectorDict] = None
                  ):
         """
         :param train: a dictionary that contains training samples as keys
-         and their labels as values.
-
-        :param model: the scikit-learn classifier to use.
-         If None (default), MultinomialNB will be used.
+         and their classes as values.
 
         :param tokenizer: the word tokenizer to use.
+
+        :param vectorizer_config: dictionary ("kwargs") giving the custom
+         parameters to `word2vec_vectorizer`.
+
+        :param word_vectors: If provided, the VectorDict will be used as
+         word vectors.
         """
-        from sklearn.naive_bayes import MultinomialNB
+        import torch
+        from torch import nn, optim
 
-        if model is None:
-            self.model = MultinomialNB()
-        else:
-            self.model = model
-
+        # Initialize some variables
         self.tokenizer = tokenizer
+        self.word_vectors = word_vectors
 
-        train_samples, train_labels = zip(*train.items())
+        train_samples, train_classes = zip(*train.items())
         train_tokens = corpus_tokenizer(train_samples, tokenizer=self.tokenizer)
-        train_vectors = count_document_vectorizer(train_tokens)
 
-        self.vocabulary = unique_words(sum([t.tokens for t in train_tokens], []))
-        self.model.fit(train_vectors.values(), train_labels)
+        if self.word_vectors is None:
+            self.word_vectors = word2vec_vectorizer(train_tokens,
+                                                    **vectorizer_config)
 
-    def predict(self, text: str) -> Dict[str, float]:
+        samples_vectors = centroid_document_vectorizer(train_tokens,
+                                                       self.word_vectors)
 
-        message_tokens = self.tokenizer(text)
-        message_vector = count_document_vectorizer(message_tokens, self.vocabulary)
+        self.classes = unique_words(train_classes)
+        n_classes = len(self.classes)
 
-        prediction = self.model.predict_proba(message_vector[0].reshape(1, -1))[0]
+        # Training
+        self.model = nn.Linear(
+            samples_vectors.values().shape[1],
+            n_classes
+        )
+        optimizer = optim.Adam(
+            self.model.parameters(),
+            lr=learning_rate
+        )
+        loss_fn = nn.CrossEntropyLoss()
 
-        return dict(zip(self.model.classes_, prediction))
+        logger.info("Starting model training.")
+        for epoch in range(iter):
+            epoch_losses = []
+
+            for sentence, label in zip(train_tokens, train_classes):
+                x = torch.tensor([samples_vectors[sentence.raw]]).float()
+                y = torch.tensor([self.classes.index(label)])
+
+                self.model.zero_grad()
+                y_pred = self.model(x)
+
+                loss = loss_fn(y_pred, y)
+                epoch_losses.append(float(loss))
+
+                loss.backward()
+                optimizer.step()
+
+            if epoch % round(iter / 10) == 0:
+                mean_loss = torch.tensor(epoch_losses).mean()
+                logger.info(
+                    "Epoch {} - Loss : {}".format(epoch, float(mean_loss)))
+
+        logger.info("Model training finished.")
+
+    def predict(self, text: str) -> Tuple[str, float]:
+        import torch
+        from torch.nn import functional as F
+
+        text = self.tokenizer(text)
+
+        x = torch.tensor([
+            centroid_document_vectorizer(text, self.word_vectors)[text.raw]
+        ]).float()
+        prediction = F.softmax(self.model(x), dim=1)
+
+        class_prediction = {}
+        for class_name, proba in zip(self.classes, prediction[0]):
+            class_prediction[class_name] = float(proba)
+
+        return class_prediction
 
 
 class EntityRecognizer(SavedObject):
@@ -110,8 +160,10 @@ class EntityRecognizer(SavedObject):
                 super(_WalnutNetwork, self).__init__()
                 self.hidden_size = hidden_size
 
-                self.embeddings = nn.Embedding(vocabulary_size,
-                                               embedding_dimension)
+                self.embeddings = nn.Embedding(
+                    vocabulary_size,
+                    embedding_dimension
+                )
                 self.encoder = nn.LSTM(  # a LSTM layer to encode features
                     embedding_dimension,
                     self.hidden_size,
@@ -180,8 +232,8 @@ class EntityRecognizer(SavedObject):
         text = self.tokenizer(text)
 
         x = torch.tensor(
-            self._tokens_to_indices(text.tokens)
-        ).view(1, len(text.tokens))
+            self._tokens_to_indices(text)
+        ).view(1, len(text))
         prediction = F.softmax(self.model(x), dim=1)
 
         # Apply a special correction

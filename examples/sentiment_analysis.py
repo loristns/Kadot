@@ -1,4 +1,4 @@
-from kadot.models import ScikitClassifier
+from kadot.models import TextClassifier
 
 # This is a tiny dataset collected on the title of IMDB reviews of "Star Wars: The Force Awakens"
 train = {
@@ -12,18 +12,17 @@ train = {
     "Not the movie I paid to see": 'negative',
     "Unimaginative, cheap, no fantasy, lacked vision": 'negative',
     "Disappointment all around": 'negative',
-    "Critical Failure": 'negative',
+    "Critical failure": 'negative',
     "Star Wars is dead!": 'negative',
     "Couldn't be more disappointed": 'negative',
     "Wow! I am very disappointed and upset!": 'negative'
 }
 test = [
-    "I spend a good time watching this movie",
-    "I hated it",
-    "Cheap failure"
+    "Cheap failure",
+    "By far the greatest movie I ever seen"
 ]
 
-classifier = ScikitClassifier(train)
+classifier = TextClassifier(train)
 
 for test_sample in test:
 

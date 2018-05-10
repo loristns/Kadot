@@ -20,9 +20,9 @@
 
 - **Vectorizers** : We are now offering Word2Vec, the state-of-the-art Fasttext and Doc2Vec algorithms using [Gensim](https://radimrehurek.com/gensim/)'s powerful backend.
 - **Performances** : Using a much more efficient algorithm, the new word vectorizer is up to 95% faster and sparse vectors now take up to 94% less memory.
-- **Models** : Kadot now includes an *automatic text summarizer* and an *entity labeler* which can be useful in many projects.
-- **Bot Engine** ?
-- **Dependencies** 😞 : In order to guarantee good performance without reinventing the wheel, we are adding [Gensim](https://radimrehurek.com/gensim/) and [Pytorch](http://pytorch.org/) to our list of dependencies. Although installed by default, these libraries (with scikit-learn) will be optional and only Numpy and Scipy are strictly required to use Kadot.
+- **Models** : Kadot now includes a *text classifier*, an *automatic text summarizer* and an *entity labeler* which can be useful in many projects.
+- **Bot Engine** : **Soon**
+- **Dependencies** 😞 : In order to guarantee good performance without reinventing the wheel, we are adding [Gensim](https://radimrehurek.com/gensim/) and [Pytorch](http://pytorch.org/) to our list of dependencies. Although installed by default, these libraries will be optional and only Numpy and Scipy are strictly required to use Kadot.
 
 ## ⚖️ License
 Kadot is under [MIT license](https://github.com/the-new-sky/Kadot/blob/master/LICENSE.md).
