@@ -8,6 +8,7 @@ from collections import Counter
 import logging
 import re
 from typing import Callable, Dict, Optional, Sequence, Tuple
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,76 @@ DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
     'iter': 1000,
     'model': SKIP_GRAM_MODEL
 }
+
+
+# TODO: Add some comments
+class BayesClassifier(SavedObject):
+    """
+    A Naive Bayes classifier.
+    """
+    def __init__(self,
+                 train: Dict[str, str],
+                 tokenizer: Callable[..., Tokens] = regex_tokenizer
+                 ):
+        """
+        :param train: a dictionary that contains training samples as keys
+         and their classes as values.
+
+        :param tokenizer: the word tokenizer to use.
+        """
+
+        self.tokenizer = tokenizer
+
+        train_samples, train_labels = zip(*train.items())
+        train_tokens = corpus_tokenizer(train_samples,
+                                        tokenizer=self.tokenizer)
+
+        train_raw_tokens = sum([t.tokens for t in train_tokens], [])
+        vectors = count_document_vectorizer(train_tokens)
+
+        self.labels = unique_words(train_labels)
+        self.vocabulary = unique_words(train_raw_tokens)
+        self.n_labels = len(self.labels)
+        self.n_words = len(self.vocabulary)
+
+        self.label_proba = np.zeros(self.n_labels)
+
+        for label_idx in range(self.n_labels):
+            self.label_proba[label_idx] = \
+                train_labels.count(self.labels[label_idx]) / len(train)
+
+        word_label_proba = np.zeros([self.n_words, self.n_labels])
+
+        for doc_raw, doc_vec in vectors.g_items():
+            word_label_proba[..., self.labels.index(train[doc_raw])] += doc_vec[0]
+
+        word_label_proba /= np.sum(word_label_proba, axis=1).reshape([-1, 1])
+
+        self.feature_proba = {}
+
+        for word_idx, word in enumerate(self.vocabulary):
+            word_proba = train_raw_tokens.count(word) / len(train_raw_tokens)
+            self.feature_proba[word] = (word_label_proba[word_idx] * word_proba) / self.label_proba
+
+    def predict(self, text: str) -> Dict[str, float]:
+        tokens = self.tokenizer(text)
+        predicted_proba = np.zeros([1, self.n_labels])
+
+        for token_idx, token in enumerate(tokens):
+            if token in self.feature_proba:
+                predicted_proba = np.append(
+                    predicted_proba,
+                    self.feature_proba[token].reshape([1, -1]),
+                    axis=0
+                )
+
+        predicted_proba = np.mean(predicted_proba, axis=0)
+
+        class_prediction = {}
+        for class_name, proba in zip(self.labels, predicted_proba):
+            class_prediction[class_name] = float(proba)
+
+        return class_prediction
 
 
 class TextClassifier(SavedObject):
@@ -106,7 +177,7 @@ class TextClassifier(SavedObject):
 
         logger.info("Model training finished.")
 
-    def predict(self, text: str) -> Tuple[str, float]:
+    def predict(self, text: str) -> Dict[str, float]:
         import torch
         from torch.nn import functional as F
 

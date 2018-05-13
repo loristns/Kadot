@@ -1,4 +1,4 @@
-from kadot.models import TextClassifier
+from kadot.models import BayesClassifier
 
 # This is a tiny dataset collected on the title of IMDB reviews of "Star Wars: The Force Awakens"
 train = {
@@ -22,7 +22,7 @@ test = [
     "By far the greatest movie I ever seen"
 ]
 
-classifier = TextClassifier(train)
+classifier = BayesClassifier(train)
 
 for test_sample in test:
 
