@@ -83,7 +83,7 @@ class BayesClassifier(SavedObject):
         tokens = self.tokenizer(text)
         predicted_proba = np.zeros([1, self.n_labels])
 
-        for token_idx, token in enumerate(tokens):
+        for token in tokens:
             if token in self.feature_proba:
                 predicted_proba = np.append(
                     predicted_proba,

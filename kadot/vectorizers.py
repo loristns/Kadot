@@ -236,7 +236,7 @@ def word_vectorizer(
     :return: a VectorDict object containing the word vectors.
     """
 
-    corpus_tokens, corpus_texts = handle_corpus(corpus)
+    corpus_tokens, _ = handle_corpus(corpus)
 
     if vocabulary is None:
         vocabulary = unique_words(sum(corpus_tokens, []))
