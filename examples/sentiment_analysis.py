@@ -1,4 +1,4 @@
-from kadot.models import BayesClassifier
+from kadot.classifiers import BayesClassifier
 
 # This is a tiny dataset collected on the title of IMDB reviews of "Star Wars: The Force Awakens"
 train = {

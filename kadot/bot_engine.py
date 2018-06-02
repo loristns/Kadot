@@ -1,4 +1,5 @@
-from kadot.models import EntityRecognizer, TextClassifier
+from kadot.classifiers import NeuralClassifier
+from kadot.models import EntityRecognizer
 from kadot.utils import SavedObject
 from kadot.vectorizers import VectorDict
 import logging
@@ -51,7 +52,7 @@ class ConversationNode(SavedObject):
         self.entities[name] = recognizer
 
     def train(self):
-        self.classifier = TextClassifier(
+        self.classifier = NeuralClassifier(
             self.intent_samples,
             word_vectors=self.word_vectors
         )
