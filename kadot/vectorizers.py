@@ -75,7 +75,10 @@ class VectorDict(SavedObject):
 
     def __getitem__(self, item):
         if isinstance(item, str):
-            item_index = self.vocabulary.index(item)
+            try:
+                item_index = self.vocabulary.index(item)
+            except ValueError:
+                raise KeyError('Key {} not in VectorDict'.format(item))
         elif isinstance(item, int):
             item_index = item
 
