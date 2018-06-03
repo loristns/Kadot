@@ -1,14 +1,20 @@
 from kadot.preprocessing import tfidf
 from kadot.tokenizers import corpus_tokenizer, regex_tokenizer, Tokens
-from kadot.utils import SavedObject, unique_words
-from kadot.vectorizers import centroid_document_vectorizer,\
-    cosine_similarity, SKIP_GRAM_MODEL, VectorDict, word2vec_vectorizer
-from collections import Counter
+from kadot.vectorizers import centroid_document_vectorizer, \
+    cosine_similarity, DEFAULT_WORD2VEC_CONFIGURATION, SKIP_GRAM_MODEL, \
+    VectorDict, word2vec_vectorizer
 import logging
 import re
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_CRF_CONFIGURATION = {
+    'c1': 0.01,
+    'c2': 0.001,
+    'max_iterations': 200,
+    'feature.possible_transitions': True
+}
 
 DEFAULT_WALNUT_CONFIGURATION = {
     'embedding_dimension': 20,
@@ -28,143 +34,118 @@ DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
 }
 
 
-class EntityRecognizer(SavedObject):
+class CRFExtractor(object):
 
     def __init__(self,
                  train: Dict[str, Tuple[str]],
+                 word_vectors: Optional[VectorDict] = None,
                  tokenizer: Callable[..., Tokens] = regex_tokenizer,
-                 configuration=DEFAULT_WALNUT_CONFIGURATION
+                 crf_config: dict = DEFAULT_CRF_CONFIGURATION,
+                 crf_filename: str = '.kadot_crf_extractor',
+                 vectorizer_config: dict = DEFAULT_WORD2VEC_CONFIGURATION
                  ):
         """
         :param train: a dictionary that contains training samples as keys
          and the entities to extract as values.
 
+        :param word_vectors: If provided, the VectorDict will be used as
+         word vectors.
+
         :param tokenizer: the word tokenizer to use.
 
-        :param configuration: a Dict that contains the parameters about
-         the model. It must contain these values :
-          - `embedding_dimension`
-          - `hidden_size`
-          - `iter`
-          - `learning_rate`
-          - `mean_ratio`
-          - `min_tolerance`
-          - `entity_size_range`
+        :param vectorizer_config: dictionary ("kwargs") giving the custom
+         parameters to `word2vec_vectorizer`
         """
-        import torch
-        from torch import nn, optim
+        import pycrfsuite
 
-        class _WalnutNetwork(nn.Module):
-
-            def __init__(self,
-                         vocabulary_size,
-                         embedding_dimension,
-                         hidden_size
-                         ):
-                super(_WalnutNetwork, self).__init__()
-                self.hidden_size = hidden_size
-
-                self.embeddings = nn.Embedding(
-                    vocabulary_size,
-                    embedding_dimension
-                )
-                self.encoder = nn.LSTM(  # a LSTM layer to encode features
-                    embedding_dimension,
-                    self.hidden_size,
-                    batch_first=True,
-                )
-                self.decoder = nn.Linear(self.hidden_size, 2)
-
-            def forward(self, inputs):
-                outputs = self.embeddings(inputs)
-                outputs, _ = self.encoder(outputs)
-                outputs = self.decoder(outputs)
-
-                return outputs[0]
-
-        # Initialize some variables
-        self.configuration = configuration
         self.tokenizer = tokenizer
+        self.word_vectors = word_vectors
+        self.crf_filename = crf_filename
 
         train_samples, train_labels = zip(*train.items())
         train_tokens = corpus_tokenizer(train_samples, tokenizer=self.tokenizer)
-        self.vocabulary = unique_words(sum([t.tokens for t in train_tokens], []) + ['<unknown>'])
 
-        # Training
-        self.model = _WalnutNetwork(
-            len(self.vocabulary),
-            self.configuration['embedding_dimension'],
-            self.configuration['hidden_size']
-        )
-        optimizer = optim.Adam(
-            self.model.parameters(),
-            lr=self.configuration['learning_rate']
-        )
-        loss_fn = nn.CrossEntropyLoss()
+        if self.word_vectors is None:
+            from kadot.vectorizers import word2vec_vectorizer
+            self.word_vectors = word2vec_vectorizer(train_tokens,
+                                                    **vectorizer_config)
 
-        logger.info("Starting model training.")
-        for epoch in range(self.configuration['iter']):
-            epoch_losses = []
+        trainer = pycrfsuite.Trainer(verbose=False)
+        for tokens, label in zip(train_tokens, train_labels):
+            x = self._get_features(tokens)
+            y = [str(token in label) for token in tokens]
 
-            for sentence, goal in zip(train_tokens, train_labels):
-                x = torch.tensor(
-                    self._tokens_to_indices(sentence)
-                ).view(1, len(sentence))
-                y = torch.tensor(
-                    [1 if word in goal else 0 for word in sentence]
-                )
+            trainer.append(x, y)
 
-                self.model.zero_grad()
-                y_pred = self.model(x)
-
-                loss = loss_fn(y_pred, y)
-                epoch_losses.append(float(loss))
-
-                loss.backward()
-                optimizer.step()
-
-            if epoch % round(self.configuration['iter'] / 10) == 0:
-                mean_loss = torch.tensor(epoch_losses).mean()
-                logger.info("Epoch {} - Loss : {}".format(epoch, float(mean_loss)))
-
-        logger.info("Model training finished.")
+        trainer.set_params(crf_config)
+        trainer.train(self.crf_filename)
 
     def predict(self, text: str) -> Tuple[Tuple[str], float]:
-        import torch
-        from torch.nn import functional as F
+        import pycrfsuite
+
+        tagger = pycrfsuite.Tagger()
+        tagger.open(self.crf_filename)
 
         text = self.tokenizer(text)
+        features = self._get_features(text)
+        prediction = tagger.tag(features)
 
-        x = torch.tensor(
-            self._tokens_to_indices(text)
-        ).view(1, len(text))
-        prediction = F.softmax(self.model(x), dim=1)
+        return (tuple([w for w, p in zip(text, prediction) if p == 'True']),
+                tagger.probability(prediction))
 
-        # Apply a special correction
-        prediction -= self.configuration['min_tolerance']
-        prediction -= self.configuration['mean_ratio'] * prediction.mean()
-        prediction /= prediction.std()
+    def _get_features(self, tokens):
+        features = []
 
-        tokens_with_scores = dict(zip(text.tokens, prediction))
-        grams_with_scores = [(('',), 0)]
+        for idx, token in enumerate(tokens):
+            word_feature = [
+                'bias',
+                'word.lower=' + token.lower(),
+                'word.last3=' + token[-3:],
+                'word.last2=' + token[-2:],
+                'word.first3=' + token[:3],
+                'word.first2=' + token[:2],
+                'word.is_upper=' + str(token.isupper()),
+                'word.is_lower=' + str(token.islower()),
+                'word.is_digit=' + str(token.isdigit()),
+                'word.is_title=' + str(token.istitle())
+            ]
 
-        for n in range(*self.configuration['entity_size_range']):
-            for gram in text.ngrams(n):
-                grams_with_scores.append(
-                    (gram, sum([float(tokens_with_scores[word][1]) for word in gram]))
-                )
+            try:
+                word_feature += ['word.vec{}={}'.format(*x) for x in enumerate(self.word_vectors[token])]
+            except KeyError:
+                pass
 
-        return Counter(dict(grams_with_scores)).most_common(1)[0]
+            if idx > 0:
+                previous_token = tokens.tokens[idx-1]
+                word_feature += [
+                    '-1:word.lower=' + previous_token.lower(),
+                    '-1:word.last3=' + previous_token[-3:],
+                    '-1:word.last2=' + previous_token[-2:],
+                    '-1:word.first3=' + previous_token[:3],
+                    '-1:word.first2=' + previous_token[:2],
+                    '-1:word.is_upper=' + str(previous_token.isupper()),
+                    '-1:word.is_lower=' + str(previous_token.islower()),
+                    '-1:word.is_digit=' + str(previous_token.isdigit()),
+                    '-1:word.is_title=' + str(previous_token.istitle())
+                ]
 
-    def _tokens_to_indices(self, tokens):
-        vector = []
-        for token in tokens:
-            if token in self.vocabulary:
-                vector.append(self.vocabulary.index(token))
-            else:
-                vector.append(self.vocabulary.index('<unknown>'))
+            if idx < len(tokens) - 1:
+                next_token = tokens.tokens[idx+1]
+                word_feature += [
+                    '+1:word.lower=' + next_token.lower(),
+                    '+1:word.last3=' + next_token[-3:],
+                    '+1:word.last2=' + next_token[-2:],
+                    '+1:word.first3=' + next_token[:3],
+                    '+1:word.first2=' + next_token[:2],
+                    '+1:word.is_upper=' + str(next_token.isupper()),
+                    '+1:word.is_lower=' + str(next_token.islower()),
+                    '+1:word.is_digit=' + str(next_token.isdigit()),
+                    '+1:word.is_title=' + str(next_token.istitle())
+                ]
 
-        return vector
+            features.append(word_feature)
+
+        return features
 
 
 def summarizer(

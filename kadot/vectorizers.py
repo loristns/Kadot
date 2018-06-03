@@ -14,6 +14,13 @@ SKIP_GRAM_MODEL = {'sg': 1, 'min_count': 1}
 DBOW_MODEL = {'dm': 0, 'min_count': 1}  # For doc2vec
 PVDM_MODEL = {'dm': 1, 'min_count': 1}
 
+DEFAULT_WORD2VEC_CONFIGURATION = {
+    'dimension': 50,
+    'window': 4,
+    'iter': 1000,
+    'model': CBOW_MODEL
+}
+
 
 def cosine_similarity(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """

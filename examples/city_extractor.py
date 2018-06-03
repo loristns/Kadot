@@ -1,4 +1,4 @@
-from kadot.models import EntityRecognizer
+from kadot.models import CRFExtractor
 
 # Find the city in a weather related query
 train = {
@@ -15,7 +15,7 @@ test = [
     "Give me the weather !"
 ]
 
-city_recognizer = EntityRecognizer(train)
+city_recognizer = CRFExtractor(train)
 
 for test_sample in test:
     city = city_recognizer.predict(test_sample)

@@ -1,7 +1,7 @@
 from kadot.tokenizers import corpus_tokenizer, regex_tokenizer, Tokens
 from kadot.utils import SavedObject, unique_words
-from kadot.vectorizers import CBOW_MODEL, centroid_document_vectorizer,\
-    count_document_vectorizer, VectorDict
+from kadot.vectorizers import centroid_document_vectorizer, \
+    count_document_vectorizer, DEFAULT_WORD2VEC_CONFIGURATION, VectorDict
 import logging
 from typing import Callable, Dict, Optional
 import numpy as np
@@ -99,7 +99,7 @@ class NeuralClassifier(SavedObject):
                  word_vectors: Optional[VectorDict] = None,
                  configuration: dict = NEURAL_CLASSIFIER_CONFIGURATION,
                  tokenizer: Callable[..., Tokens] = regex_tokenizer,
-                 vectorizer_config: dict = CBOW_MODEL
+                 vectorizer_config: dict = DEFAULT_WORD2VEC_CONFIGURATION
                  ):
         """
         :param train: a dictionary that contains training samples as keys

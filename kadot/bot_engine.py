@@ -1,5 +1,5 @@
 from kadot.classifiers import NeuralClassifier
-from kadot.models import EntityRecognizer
+from kadot.models import CRFExtractor
 from kadot.utils import SavedObject
 from kadot.vectorizers import VectorDict
 import logging
@@ -48,7 +48,7 @@ class ConversationNode(SavedObject):
 
         return wrapper
 
-    def add_entity(self, name: str, recognizer: EntityRecognizer):
+    def add_entity(self, name: str, recognizer: CRFExtractor):
         self.entities[name] = recognizer
 
     def train(self):
