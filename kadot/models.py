@@ -16,16 +16,6 @@ DEFAULT_CRF_CONFIGURATION = {
     'feature.possible_transitions': True
 }
 
-DEFAULT_WALNUT_CONFIGURATION = {
-    'embedding_dimension': 20,
-    'hidden_size': 10,
-    'iter': 800,
-    'learning_rate': 0.01,
-    'mean_ratio': 0.75,
-    'min_tolerance': 1e-04,
-    'entity_size_range': (1, 10+1),
-}
-
 DEFAULT_SUMMARIZER_WORD2VEC_CONFIGURATION = {
     'dimension': 100,
     'window': 10,
