@@ -4,7 +4,7 @@ import random
 
 # Set up an extractor to retrieve place names in queries.
 places_extractor = CRFExtractor({
-    "For eg. at Suite 101, Johnshon Avenue in London.": ('Suite', '101', 'Johnshon', 'Avenue,', 'London'),
+    "For eg. at Suite 101, johnshon avenue in London.": ('Suite', '101', 'johnshon', 'avenue,', 'London'),
     "The soldiers clashed at Gettysburg.": ('Gettysburg',),
     "The treaty was signed at Versailles.": ('Versailles',),
     "Give me the forecast in New York !": ('New', 'York'),
@@ -32,7 +32,7 @@ def smalltalk(raw, context):
     An intent to answer to greetings and appreciations.
     Answer the same with an exclamation mark (!).
     """
-    return raw + '!', context
+    return raw + ' !', context
 
 
 @bot.intent([
@@ -50,12 +50,23 @@ def weather(raw, context):
 
     if context['place']:
         answer = "In {}, it will be {}".format(context['place'], random.choice(['sunny', 'cloudy', 'rainy']))
+        context.event_flag = 'should_continue'
         return answer, context
     else:
         return bot.prompt("In which city ?", key='place', callback=weather, context=context)
 
 
+@bot.hidden_intent()
+def should_continue(raw, context):
+    if context['continue']:
+        answer = "For now, I can't understand if you want to continue or not..."
+        del context['continue']
+        return answer, context
+    else:
+        return bot.prompt("Do you want to continue ?", key='continue', callback=should_continue, context=context)
+
+
 bot.train()
 
 while True:
-    print(bot.predict(text=input('> ')))
+    print('\n'.join(bot.predict(text=input('> '))))

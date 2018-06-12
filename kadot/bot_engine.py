@@ -18,10 +18,11 @@ class Context(object):
         self.age = 0
         self.data = {}
         self.data_track = {}  # Indicate if data are expired
+        self.event_flag = None
         self.intent_flag = None
 
     def __setitem__(self, key, value):
-        if value or key not in self.data.keys():  # No empty data in the context
+        if value:  # No empty data in the context
             self.data[key] = value
             self.data_track[key] = self.age
 
@@ -29,10 +30,13 @@ class Context(object):
         del self.data_track[key], self.data[key]
 
     def __getitem__(self, item):
-        if self.data_track[item] + 2 < self.age:  # If data is too old
-            self.data[item] = ''
+        try:
+            if self.data_track[item] + 3 < self.age:  # If data is too old
+                del self.data[item], self.data_track[item]
 
-        return self.data[item]
+            return self.data[item]
+        except KeyError:
+            return None
 
     def step(self):
         self.age += 1
@@ -92,6 +96,9 @@ class Agent(SavedObject):
             return intent_function
 
         return wrapper
+
+    def hidden_intent(self):
+        return self.intent([], entities=[])
 
     def prompt(self,
                message: Any,
@@ -157,8 +164,19 @@ class Agent(SavedObject):
         for entity_name in self.intents[best_intent].entities:
             context[entity_name] = ' '.join(self.entities[entity_name].predict(text)[0])
 
+        output = []
+        intent_output, context = self.intents[best_intent].run(text, context)
+        output.append(intent_output)
         context.step()
-        output, context = self.intents[best_intent].run(text, context)
+
+        while context.event_flag:
+            intent = context.event_flag
+            context.event = None
+            event_output, context = self.intents[intent].run(text, context)
+            context.step()
+
+            output.append(event_output)
+
         self.contexts[conversation] = context
 
         return output
