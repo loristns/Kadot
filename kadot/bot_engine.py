@@ -171,7 +171,7 @@ class Agent(SavedObject):
 
         while context.event_flag:
             intent = context.event_flag
-            context.event = None
+            context.event_flag = None
             event_output, context = self.intents[intent].run(text, context)
             context.step()
 
