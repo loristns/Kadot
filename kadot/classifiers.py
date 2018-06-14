@@ -1,3 +1,4 @@
+from kadot.fuzzy import extract, ratio
 from kadot.tokenizers import corpus_tokenizer, regex_tokenizer, Tokens
 from kadot.utils import SavedObject, unique_words
 from kadot.vectorizers import centroid_document_vectorizer, \
@@ -193,5 +194,33 @@ class NeuralClassifier(SavedObject):
         class_prediction = {}
         for class_name, proba in zip(self.labels, prediction[0]):
             class_prediction[class_name] = float(proba)
+
+        return class_prediction
+
+
+class FuzzyClassifier(SavedObject):
+
+    def __init__(self,
+                 train: Dict[str, str],
+                 ratio_function: Callable[..., float] = ratio,
+                 tokenizer: Callable[..., Tokens] = regex_tokenizer
+                 ):
+
+        self.train_samples, self.train_labels = zip(*train.items())
+        self.labels = unique_words(self.train_labels)
+
+        self.ratio_function = ratio_function
+        self.tokenizer = tokenizer
+
+    def predict(self, text: str) -> Dict[str, float]:
+        tokens = self.tokenizer(text)
+        scores = extract(tokens, corpus_tokenizer(self.train_samples))
+
+        class_prediction = {label: 0. for label in self.labels}
+
+        for (sample, score) in scores:
+            sample_label = self.train_labels[self.train_samples.index(sample)]
+            if class_prediction[sample_label] < score:
+                class_prediction[sample_label] = score
 
         return class_prediction
