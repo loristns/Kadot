@@ -125,6 +125,34 @@ class Agent(SavedObject):
 
         return message, context
 
+    def option(self,
+                 message: Any,
+                 key: str,
+                 classifier,
+                 callback: Callable[[str, Context], Any],
+                 context: Context):
+
+        def _option(raw, ctx):
+            """
+            An intent to retrieve the user's input and put it's
+            classification in the context.
+            """
+
+            best_class, best_proba = '', 0
+
+            for e_class, e_proba in classifier.predict(raw).items():
+                if e_proba >= best_proba:
+                    best_class, best_proba = e_class, e_proba
+
+            ctx[key] = best_class
+
+            return callback(raw, ctx)
+
+        self.intents['_option'] = Intent(name='_option', func=_option)
+        context.intent_flag = '_option'
+
+        return message, context
+
     def _get_training_dataset(self):
         training_dataset = {}
 
@@ -172,6 +200,8 @@ class Agent(SavedObject):
         while context.event_flag:
             intent = context.event_flag
             context.event_flag = None
+
+            logger.info("Event flag for {}.".format(intent))
             event_output, context = self.intents[intent].run(text, context)
             context.step()
 

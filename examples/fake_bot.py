@@ -1,4 +1,5 @@
 from kadot.bot_engine import Agent
+from kadot.classifiers import FuzzyClassifier
 from kadot.models import CRFExtractor
 import random
 
@@ -13,6 +14,21 @@ places_extractor = CRFExtractor({
     "Yesterday, I went to Dublin.": ('Dublin',)
     },
     crf_filename='.crf_city_extractor_city'
+)
+
+yes_no = FuzzyClassifier({
+    "yes": 'y',
+    "yep": 'y',
+    "of course": 'y',
+    "affirmative": 'y',
+    "ok": 'y',
+    "continue": 'y',
+    "nope": 'n',
+    "no": 'n',
+    "nay": 'n',
+    "negative": 'n',
+    "end": 'n',
+    }
 )
 
 bot = Agent()
@@ -53,17 +69,25 @@ def weather(raw, context):
         context.event_flag = 'should_continue'
         return answer, context
     else:
-        return bot.prompt("In which city ?", key='place', callback=weather, context=context)
+        return bot.prompt("In which city ?", key='place',
+                          callback=weather, context=context)
 
 
 @bot.hidden_intent()
 def should_continue(raw, context):
     if context['continue']:
-        answer = "For now, I can't understand if you want to continue or not..."
+        if context['continue'] == 'y':
+            answer = "Ok, fine."
+        else:  # context['continue'] == 'n'
+            answer = "Ok bye bye"
+
         del context['continue']
         return answer, context
+
     else:
-        return bot.prompt("Do you want to continue ?", key='continue', callback=should_continue, context=context)
+        return bot.option("Do you want to continue ?", key='continue',
+                          classifier=yes_no, callback=should_continue,
+                          context=context)
 
 
 bot.train()
