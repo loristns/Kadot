@@ -3,8 +3,10 @@ from kadot.models import CRFExtractor
 from kadot.tokenizers import regex_tokenizer, Tokens
 from kadot.utils import SavedObject
 from kadot.vectorizers import VectorDict
+from io import IOBase
+import json
 import logging
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Optional, Sequence, IO, Union
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +85,9 @@ class Agent(SavedObject):
     def add_entity(self, name: str, extractor: CRFExtractor):
         self.entities[name] = extractor
 
-    def intent(self, samples: Sequence[str], entities: Sequence[str] = []):
+    def intent(self, samples: Union[Sequence[str], IO], entities: Sequence[str] = []):
+        if isinstance(samples, IOBase):  # Handle JSON file as input
+            samples = json.load(samples)
 
         def wrapper(intent_function):
             self.intents[intent_function.__name__] = Intent(
