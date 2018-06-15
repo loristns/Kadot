@@ -103,7 +103,7 @@ class Agent(SavedObject):
     def prompt(self,
                message: Any,
                key: str,
-               callback: Callable[[str, Context], Any],
+               callback: str,
                context: Context):
 
         def _prompt(raw, ctx):
@@ -118,7 +118,7 @@ class Agent(SavedObject):
             if output: ctx[key] = output
             else: ctx[key] = raw
 
-            return callback(raw, ctx)
+            return self.intents[callback].run(raw, ctx)
 
         self.intents['_prompt'] = Intent(name='_prompt', func=_prompt)
         context.intent_flag = '_prompt'
@@ -126,11 +126,11 @@ class Agent(SavedObject):
         return message, context
 
     def option(self,
-                 message: Any,
-                 key: str,
-                 classifier,
-                 callback: Callable[[str, Context], Any],
-                 context: Context):
+               message: Any,
+               key: str,
+               classifier,
+               callback: str,
+               context: Context):
 
         def _option(raw, ctx):
             """
@@ -146,7 +146,7 @@ class Agent(SavedObject):
 
             ctx[key] = best_class
 
-            return callback(raw, ctx)
+            return self.intents[callback].run(raw, ctx)
 
         self.intents['_option'] = Intent(name='_option', func=_option)
         context.intent_flag = '_option'

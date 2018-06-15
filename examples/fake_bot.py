@@ -13,7 +13,7 @@ places_extractor = CRFExtractor({
     "The plane stops at Dallas on the way to San Francisco ": ('Dallas', 'San', 'Francisco'),
     "Yesterday, I went to Dublin.": ('Dublin',)
     },
-    crf_filename='.crf_city_extractor_city'
+    crf_filename='.crf_city_extractor'
 )
 
 yes_no = FuzzyClassifier({
@@ -70,7 +70,7 @@ def weather(raw, context):
         return answer, context
     else:
         return bot.prompt("In which city ?", key='place',
-                          callback=weather, context=context)
+                          callback='weather', context=context)
 
 
 @bot.hidden_intent()
@@ -86,7 +86,7 @@ def should_continue(raw, context):
 
     else:
         return bot.option("Do you want to continue ?", key='continue',
-                          classifier=yes_no, callback=should_continue,
+                          classifier=yes_no, callback='should_continue',
                           context=context)
 
 
