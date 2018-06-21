@@ -155,13 +155,8 @@ class VectorDict(SavedObject):
         return VectorDict(vocabulary, np.vstack(matrix))
 
     def pytorch_embedding(self, freeze=True):
-        import torch
         from torch import nn
-        # Will use nn.Embedding.from_pretrained(weight) when released.
-        embedding = nn.Embedding(*self.matrix.shape)
-        embedding.weight = nn.Parameter(torch.from_numpy(self.matrix))
-        embedding.weight.requires_grad = not freeze
-
+        embedding = nn.Embedding.from_pretrained(self.matrix, freeze)
         return embedding
 
     def most_similar(self,
