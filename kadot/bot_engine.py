@@ -20,6 +20,7 @@ class Context(object):
         self.age = 0
         self.data = {}
         self.data_track = {}  # Indicate if data are expired
+        self.last_intent = None
         self.event_flag = None
         self.intent_flag = None
 
@@ -199,6 +200,7 @@ class Agent(SavedObject):
         output = []
         intent_output, context = self.intents[best_intent].run(text, context)
         output.append(intent_output)
+        context.last_intent = best_intent
         context.step()
 
         while context.event_flag:
@@ -207,6 +209,7 @@ class Agent(SavedObject):
 
             logger.info("Event flag for {}.".format(intent))
             event_output, context = self.intents[intent].run(text, context)
+            context.last_intent = intent
             context.step()
 
             output.append(event_output)
