@@ -66,6 +66,7 @@ class Agent(SavedObject):
 
     def __init__(self,
                  word_vectors: Optional[VectorDict] = None,
+                 classifier=NeuralClassifier,
                  tokenizer: Callable[..., Tokens] = regex_tokenizer
                  ):
         """
@@ -75,6 +76,7 @@ class Agent(SavedObject):
         :param tokenizer: the word tokenizer to use.
         """
 
+        self.classifier_fn = classifier
         self.classifier = None
         self.tokenizer = tokenizer
         self.word_vectors = word_vectors
@@ -168,7 +170,7 @@ class Agent(SavedObject):
         return training_dataset
 
     def train(self):
-        self.classifier = NeuralClassifier(
+        self.classifier = self.classifier_fn(
             self._get_training_dataset(),
             word_vectors=self.word_vectors
         )
