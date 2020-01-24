@@ -1,9 +1,13 @@
-![Kadot](https://github.com/the-new-sky/Kadot/raw/1.0dev/logo.png)
+<p align="center">
+  <img src="https://github.com/the-new-sky/Kadot/raw/1.0dev/logo.png" alt="Kadot" height="100px"/>
+</p>
+
 # Natural language processing using unsupervised vectors representation.
 
 [![Documentation Status](https://readthedocs.org/projects/kadot/badge/?version=1.0dev)](http://kadot.readthedocs.io/en/1.0dev/?badge=1.0dev) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/513eab88b0af4c93b1524d91090397a0)](https://www.codacy.com/app/lorisazerty/Kadot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=the-new-sky/Kadot&amp;utm_campaign=Badge_Grade)
 
 *⚠️ You are reading the README about Kadot 1.0 which is under development.*
+*⚠️ Kadot is no longer in development, the project had two branches: [0.x](https://github.com/the-new-sky/Kadot/tree/master) and 1.x (this one).*
 
 **Kadot** is a high-level open-source library to easily process text documents. It relies on vector representations of documents or words in order to solve NLP tasks such as **summarization**, **spellchecking** or **classification**.
 
